@@ -1,35 +1,87 @@
-class TrainTime {
-  // Attributes
-  int id;
-  DateTime arrivalTime;
-  DateTime departureTime;
-  int trainId;
-  String stationName;
-  String dayType;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-  // Constructor
-  TrainTime({
+class TrainTime {
+  final String id;
+  final int trainId;
+  final String lineId;
+  final String stationName;
+  final int stopOrder;
+
+  final String? departureTime;
+  final String? arrivalTime;
+  final String? dayType;
+
+  const TrainTime({
     required this.id,
-    required this.arrivalTime,
-    required this.departureTime,
     required this.trainId,
+    required this.lineId,
     required this.stationName,
-    required this.dayType,
+    required this.stopOrder,
+    this.departureTime,
+    this.arrivalTime,
+    this.dayType,
   });
 
-  // Methods
-  bool isPeakHour() {
-    // Logic hne (mathalan bin el 7 w el 9 mte3 sbe7)
-    return arrivalTime.hour >= 7 && arrivalTime.hour <= 9;
+  // ─────────────────────────────
+  // CLEANER (IMPORTANT 🔥)
+  // ─────────────────────────────
+  static String? clean(dynamic v) {
+    if (v == null) return null;
+
+    final s = v.toString().trim();
+
+    if (s.isEmpty) return null;
+    if (s.toUpperCase() == 'NULL') return null;
+
+    return s;
   }
 
-  String getDelayStatus() {
-    // Logic mte3 e-retard hne
-    return "On Time";
+  static int cleanInt(dynamic v) {
+    if (v == null) return 0;
+    return int.tryParse(v.toString()) ?? 0;
   }
 
-  bool isLastTrain() {
-    // Logic kenou ekher train wala le
-    return false;
+  // ─────────────────────────────
+  // FIRESTORE FACTORY
+  // ─────────────────────────────
+  factory TrainTime.fromFirestore(DocumentSnapshot doc) {
+    final map = doc.data() as Map<String, dynamic>;
+
+    return TrainTime(
+      id: doc.id,
+
+      trainId: cleanInt(map['trainId']),
+      lineId: map['lineId'] ?? '',
+      stationName: map['stationName'] ?? '',
+      stopOrder: cleanInt(map['stopOrder']),
+
+      departureTime: clean(map['departureTime']),
+      arrivalTime: clean(map['arrivalTime']),
+      dayType: clean(map['dayType']),
+    );
   }
+
+  // ─────────────────────────────
+  // TO MAP (FOR FIRESTORE WRITE)
+  // ─────────────────────────────
+  Map<String, dynamic> toMap() {
+    return {
+      'trainId': trainId,
+      'lineId': lineId,
+      'stationName': stationName,
+      'stopOrder': stopOrder,
+      'departureTime': departureTime,
+      'arrivalTime': arrivalTime,
+      'dayType': dayType,
+    };
+  }
+
+  // ─────────────────────────────
+  // HELPERS
+  // ─────────────────────────────
+
+  bool get hasTime => departureTime != null || arrivalTime != null;
+
+  String get displayDeparture => departureTime ?? '--';
+  String get displayArrival => arrivalTime ?? '--';
 }

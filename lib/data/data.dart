@@ -1,5 +1,42 @@
-class StationsData {
-  // ── Station data ──────────────────────────────────────────────
+import 'package:flutter/material.dart';
+
+class DaysData {
+  // ── DATE FORMAT ─────────────────────────────
+  static String formatDate(DateTime d) {
+    const weekdays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
+    return '${d.day} ${weekdays[d.weekday - 1]} ${d.year}';
+  }
+  static const months = [
+    'Jan',
+    'Fév',
+    'Mar',
+    'Avr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Aoû',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Déc',
+  ];
+  // ── TIME FORMAT ─────────────────────────────
+  static String formatTime(TimeOfDay t) {
+    final hour = t.hour.toString().padLeft(2, '0');
+    final minute = t.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+}
+  /*// ── Station data ──────────────────────────────────────────────
   static const List<String> grandesLignes = [
     'AIN MESRIA',
     'AIN GHELAL',
@@ -212,3 +249,4 @@ class StationsData {
     "ALGER (GARE D'AGHA)",
   ];
 }
+*/
