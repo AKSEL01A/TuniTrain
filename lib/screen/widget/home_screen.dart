@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:tuni_train/controller/home_controlle.dart';
 import 'package:tuni_train/models/nav_item.dart';
 import 'package:tuni_train/screen/page/accueil_screen.dart';
+import 'package:tuni_train/screen/page/my_journey_page.dart';
 
 class HomePageClient extends StatelessWidget {
   const HomePageClient({super.key});
@@ -14,15 +15,20 @@ class HomePageClient extends StatelessWidget {
 
   static const List<NavItem> _navItems = [
     NavItem(Icons.home_rounded, 'Accueil'),
-    NavItem(Icons.local_offer_sharp, 'Services'),
-    NavItem(Icons.confirmation_num_rounded, 'Achats'),
+    NavItem(Icons.confirmation_number_rounded, 'Mes Billets'),
+    NavItem(Icons.inventory_2_rounded, 'Achats'),
     NavItem(Icons.train_rounded, 'Statut'),
     NavItem(Icons.notifications_rounded, 'Alertes'),
   ];
 
   // الأفضل: getter بدل static final
-  List<Widget> get _pages => const [AccueilPageScreen()];
-
+  List<Widget> get _pages => [
+    const AccueilPageScreen(),
+    MyJourneyPage(),
+    const Placeholder(), // Achats
+    const Placeholder(), // Statut
+    const Placeholder(), // Alertes
+  ];
   @override
   Widget build(BuildContext context) {
     final HomeController controller = Get.find<HomeController>();

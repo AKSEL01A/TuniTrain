@@ -6,6 +6,7 @@ import 'package:tuni_train/models/station.dart';
 import 'package:tuni_train/models/train.dart';
 import 'package:tuni_train/models/train_journey.dart';
 import 'package:tuni_train/models/train_line.dart';
+import 'package:tuni_train/screen/page/search_result_page.dart';
 
 class SearchTrainController extends GetxController {
   final FirestoreService _firestore = FirestoreService();
@@ -309,24 +310,20 @@ class SearchTrainController extends GetxController {
       // 👉 use return date
       departureDateTime.value = returnDateTime.value;
 
+      // 👉 set selectedTime for the return search
+      if (returnDateTime.value != null) {
+        selectedTime.value = TimeOfDay(
+          hour: returnDateTime.value!.hour,
+          minute: returnDateTime.value!.minute,
+        );
+      }
+
       // 🔄 reload results
       search();
     } else {
       // 🚀 ONE WAY → go panel
       Get.toNamed('/panel');
     }
-  }
-
-  DateTime _calculateArrivalDateTime(TrainJourney j) {
-    final dep = departureDateTime.value!;
-
-    final depMin = _toMin(j.departureTime);
-    final arrMin = _toMin(j.arrivalTime);
-
-    int diff = arrMin - depMin;
-    if (diff < 0) diff += 1440;
-
-    return dep.add(Duration(minutes: diff));
   }
 
   // ─────────────────────────────
@@ -337,8 +334,21 @@ class SearchTrainController extends GetxController {
       searchLoading.value = true;
 
       final date = searchMode.value == 'ALLER'
-          ? departureDateTime.value!
-          : returnDateTime.value!; // 👈 important
+          ? departureDateTime.value
+          : returnDateTime.value;
+
+      // Guard: if date or time is null, can't search
+      if (date == null || selectedTime.value == null) {
+        debugPrint(
+          "⚠️ SEARCH: date=$date | selectedTime=${selectedTime.value}",
+        );
+        nextTrains.clear();
+        return;
+      }
+
+      debugPrint(
+        "🔍 SEARCH [${searchMode.value}]: ${from.value} → ${to.value} | date=$date | time=${selectedTime.value}",
+      );
 
       final result = await _firestore.searchTrains(
         fromStationId: fromId.value,
@@ -349,7 +359,11 @@ class SearchTrainController extends GetxController {
         selectedDate: date,
       );
 
+      debugPrint("🚆 FOUND: ${result.length} trains");
       nextTrains.assignAll(result);
+    } catch (e) {
+      debugPrint("🚨 SEARCH ERROR: $e");
+      nextTrains.clear();
     } finally {
       searchLoading.value = false;
     }
@@ -380,5 +394,129 @@ class SearchTrainController extends GetxController {
   TrainLine? getSelectedLine() {
     if (selectedNetwork.value == 'ALL') return null;
     return lines.firstWhereOrNull((l) => l.id == selectedNetwork.value);
+  }
+
+  // ─────────────────────────────
+  // VIEW HELPERS (moved from page)
+  // ─────────────────────────────
+
+  /// Format date + time for display.
+  String fmtDateTime(DateTime? date, TimeOfDay? time) {
+    if (date == null) return 'Sélectionner';
+    const months = [
+      'Jan',
+      'Fév',
+      'Mar',
+      'Avr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Aoû',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Déc',
+    ];
+    final d =
+        '${date.day.toString().padLeft(2, '0')} ${months[date.month - 1]}';
+    final t = time != null
+        ? ' · ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
+        : '';
+    return '$d$t';
+  }
+
+  /// Human-readable passengers label.
+  String get passengersLabel {
+    final parts = <String>[];
+    if (adults.value > 0) {
+      parts.add('${adults.value} Adulte${adults.value > 1 ? 's' : ''}');
+    }
+    if (babies.value > 0) {
+      parts.add('${babies.value} Bébé${babies.value > 1 ? 's' : ''}');
+    }
+    return parts.isEmpty ? '1 Adulte' : parts.join(' · ');
+  }
+
+  /// Clear return trip.
+  void clearReturn() {
+    hasReturn.value = false;
+    returnDate.value = null;
+    returnTime.value = null;
+    returnDateTime.value = null;
+  }
+
+  /// Reset coupon state.
+  void cancelCoupon() {
+    showCouponField.value = false;
+    couponCode.value = '';
+    couponTextCtrl.clear();
+  }
+
+  /// Search button logic (validate → search → navigate).
+  Future<void> performSearch() async {
+    searchLoading.value = true;
+
+    try {
+      // Date check
+      if (departureDateTime.value == null) {
+        Get.snackbar(
+          "Erreur",
+          "Sélectionnez la date et l'heure",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFE53935),
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(12),
+          borderRadius: 14,
+        );
+        return;
+      }
+
+      // Time set
+      final ad = activeDate;
+      selectedTime.value = TimeOfDay(hour: ad.hour, minute: ad.minute);
+
+      // Station check
+      if (from.value.isEmpty || to.value.isEmpty) {
+        Get.snackbar(
+          "Erreur",
+          "Choisissez les stations",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFE53935),
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Search
+      await search();
+
+      // Navigate
+      if (nextTrains.isNotEmpty) {
+        Get.to(
+          () => SearchResultPage(),
+          arguments: {
+            "from": from.value,
+            "to": to.value,
+            "date": departureDateTime.value,
+            "adults": adults.value,
+            "children": children.value,
+            "babies": babies.value,
+            "coupon": couponCode.value,
+          },
+        );
+      } else {
+        Get.snackbar(
+          "Aucun train",
+          "Aucun trajet disponible",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(12),
+          borderRadius: 14,
+        );
+      }
+    } finally {
+      searchLoading.value = false;
+    }
   }
 }

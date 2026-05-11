@@ -32,4 +32,3 @@ class PanelBinding extends Bindings {
     Get.put(PanelController());
   }
 }
-

@@ -5,6 +5,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:tuni_train/controller/home_controlle.dart';
 import 'package:tuni_train/screen/page/payment_page.dart';
+import 'package:tuni_train/screen/page/payment_success_page.dart';
 import 'package:tuni_train/screen/page/qr_ticket_page.dart';
 import 'package:tuni_train/screen/page/search_train.dart';
 import 'package:tuni_train/screen/page/panel_page.dart';
@@ -61,9 +62,10 @@ class MyApp extends StatelessWidget {
           page: () => PanelPage(),
           binding: PanelBinding(),
         ),
-GetPage(name: '/payment', page: () => const PaymentPage()),
         GetPage(name: '/ticket-qr', page: () => QrTicketPage()),
 
+        GetPage(name: '/payment', page: () => const PaymentPage()),
+        GetPage(name: '/payment_success', page: () => PaymentSuccessPage()),
       ],
     );
   }

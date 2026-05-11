@@ -10,6 +10,123 @@ class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   // ─────────────────────────────
+  // ZONE MAP  (station name → zone number)
+  // ─────────────────────────────
+  static const Map<String, int> _stationZones = {
+    // ZONE 1
+    "SOUSSE BAB JEDID": 1,
+    "SOUSSE MED V": 1,
+    "SOUSSE SUD": 1,
+    "SOUSSE ZONE INDUSTRIELLE": 1,
+    // ZONE 2
+    "SAHLINE": 2,
+    "SAHLINE SEBKHA": 2,
+    "LES HOTELS": 2,
+    "L'AEROPORT": 2,
+    "LA FACULTE 1": 2,
+    "MONASTIR CENTRE": 2,
+    // ZONE 3
+    "LA FACULTE 2": 3,
+    "MONASTIR ZONE INDUSTRIELLE": 3,
+    "FRINA": 3,
+    "KHENISS BEMBLA": 3,
+    "KSIBET MEDIOUNI BENANE": 3,
+    "BOUHJAR": 3,
+    // ZONE 4
+    "LAMTA": 4,
+    "SAYADA": 4,
+    "KSAR HELLAL ZONE INDUSTRIELLE": 4,
+    "KSAR HELLAL": 4,
+    // ZONE 5
+    "MOKNINE GRIBAA": 5,
+    "MOKNINE CENTRE": 5,
+    "MOKNINE ZONE INDUSTRIELLE": 5,
+    "TEBOULBA ZONE INDUSTRIELLE": 5,
+    "TEBOULBA": 5,
+    "BEKALTA": 5,
+    // ZONE 6
+    "BAGHDADI": 6,
+    "MAHDIA ZONE TOURISTIQUE": 6,
+    "SIDI MESSOUD": 6,
+    "BORJ EL ARIF": 6,
+    "EZZAHRA": 6,
+    "MAHDIA CENTRE": 6,
+  };
+
+  // ─────────────────────────────
+  // PRICE TABLE  (index = zone diff, 0–5)
+  // ─────────────────────────────
+  static const List<double> _priceTable = [
+    0.800, // diff 0 → same zone
+    1.000, // diff 1
+    1.200, // diff 2
+    1.600, // diff 3
+    1.900, // diff 4
+    2.600, // diff 5 → zone 1 ↔ zone 6
+  ];
+
+  // ─────────────────────────────
+  // CALCULATE PRICE between two station names
+  // Returns the base price for ONE adult ticket (2nd class)
+  // ─────────────────────────────
+  static double calculatePrice(String fromStation, String toStation) {
+    final fromNorm = fromStation.trim().toUpperCase();
+    final toNorm = toStation.trim().toUpperCase();
+
+    // Try exact match first, then "contains" fallback
+    int? fromZone = _stationZones[fromNorm];
+    int? toZone = _stationZones[toNorm];
+
+    // Fallback: find first key that contains the station name
+    if (fromZone == null) {
+      for (final entry in _stationZones.entries) {
+        if (entry.key.contains(fromNorm) || fromNorm.contains(entry.key)) {
+          fromZone = entry.value;
+          break;
+        }
+      }
+    }
+    if (toZone == null) {
+      for (final entry in _stationZones.entries) {
+        if (entry.key.contains(toNorm) || toNorm.contains(entry.key)) {
+          toZone = entry.value;
+          break;
+        }
+      }
+    }
+
+    if (fromZone == null || toZone == null) {
+      debugPrint(
+        "⚠️  Zone not found → from='$fromStation' (zone=$fromZone) | to='$toStation' (zone=$toZone) → fallback 0.800",
+      );
+      return 0.800; // fallback: minimum price
+    }
+
+    final diff = (fromZone - toZone).abs().clamp(0, _priceTable.length - 1);
+    final price = _priceTable[diff];
+
+    debugPrint(
+      "💰 PRICE: $fromStation (Z$fromZone) → $toStation (Z$toZone) | diff=$diff | price=$price DT",
+    );
+
+    return price;
+  }
+
+  // ─────────────────────────────
+  // Get zone number for a station (useful for UI display)
+  // ─────────────────────────────
+  static int? getZone(String stationName) {
+    final norm = stationName.trim().toUpperCase();
+    return _stationZones[norm] ??
+        _stationZones.entries
+            .firstWhere(
+              (e) => e.key.contains(norm) || norm.contains(e.key),
+              orElse: () => const MapEntry('', 0),
+            )
+            .value;
+  }
+
+  // ─────────────────────────────
   // NORMALIZE TEXT
   // ─────────────────────────────
   String norm(String s) =>
@@ -49,11 +166,7 @@ class FirestoreService {
   }
 
   // ─────────────────────────────
-  // 🔥 SMART STATION MATCHER
-  // Tries 3 strategies in order:
-  // 1. stationId exact match
-  // 2. stationName exact match (uppercase)
-  // 3. stationName contains match (handles "MOKNINE" matching "MOKNINE CENTRE")
+  // SMART STATION MATCHER
   // ─────────────────────────────
   bool _stationMatches(TrainTime stop, String stationId, String stationName) {
     final stopId = stop.stationId.trim().toLowerCase();
@@ -61,25 +174,15 @@ class FirestoreService {
     final searchId = stationId.trim().toLowerCase();
     final searchName = stationName.trim().toUpperCase();
 
-    // Strategy 1: stationId exact match
     if (stopId.isNotEmpty && searchId.isNotEmpty && stopId == searchId) {
       return true;
     }
-
-    // Strategy 2: stationName exact match
-    if (stopName == searchName) {
-      return true;
-    }
-
-    // Strategy 3: one name contains the other
-    // handles: "MOKNINE" matches "MOKNINE CENTRE" and vice versa
-    // handles: "MAHDIA" matches "MAHDIA CENTRE" and vice versa
+    if (stopName == searchName) return true;
     if (stopName.isNotEmpty && searchName.isNotEmpty) {
       if (stopName.contains(searchName) || searchName.contains(stopName)) {
         return true;
       }
     }
-
     return false;
   }
 
@@ -97,20 +200,13 @@ class FirestoreService {
     try {
       final trainTimes = await getTrainTimes();
 
-      // 🔥 DEBUG
-      debugPrint("══ SAMPLE TRAIN TIME stationNames ══");
-      for (final t in trainTimes.take(5)) {
-        debugPrint(
-          "  stationId='${t.stationId}' | stationName='${t.stationName}'",
-        );
-      }
       debugPrint("══ SEARCHING FOR ══");
       debugPrint(
         "  fromStationId='$fromStationId' | fromName='$fromStationName'",
       );
       debugPrint("  toStationId='$toStationId'     | toName='$toStationName'");
 
-      // group by trainId
+      // Group by trainId
       final Map<int, List<TrainTime>> grouped = {};
       for (final t in trainTimes) {
         grouped.putIfAbsent(t.trainId, () => []).add(t);
@@ -123,8 +219,13 @@ class FirestoreService {
           selectedDate.month == now.month &&
           selectedDate.day == now.day;
 
+      // ── Pre-calculate the price ONCE for this from→to pair ─────────────
+      final double journeyPrice = calculatePrice(
+        fromStationName,
+        toStationName,
+      );
+
       final List<TrainJourney> result = [];
-      final stations = await getAllStations(); // ✅ PLACE HERE (IMPORTANT)
 
       for (final entry in grouped.entries) {
         final stops = entry.value;
@@ -133,7 +234,6 @@ class FirestoreService {
         TrainTime? fromStop;
         TrainTime? toStop;
 
-        // 🔥 SMART MATCH: tries ID, exact name, then contains
         for (final s in stops) {
           if (_stationMatches(s, fromStationId, fromStationName)) {
             fromStop = s;
@@ -164,9 +264,7 @@ class FirestoreService {
             arrivalTime: arr,
             fromStopOrder: fromStop.stopOrder,
             toStopOrder: toStop.stopOrder,
-
-            // ✅ FIX HERE
-            ticketPrice: 0.800,
+            ticketPrice: journeyPrice, // ✅ Real zone-based price
           ),
         );
       }
@@ -176,7 +274,9 @@ class FirestoreService {
             toMinutes(a.departureTime).compareTo(toMinutes(b.departureTime)),
       );
 
-      debugPrint("🚆 FOUND: ${result.length}");
+      debugPrint(
+        "🚆 FOUND: ${result.length} trains | price: ${journeyPrice.toStringAsFixed(3)} DT",
+      );
       return result;
     } catch (e) {
       debugPrint("SEARCH ERROR: $e");

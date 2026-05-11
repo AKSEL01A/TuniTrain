@@ -1,29 +1,33 @@
 import 'package:get/get.dart';
 import 'package:tuni_train/controller/search_train_controller.dart';
-import 'package:tuni_train/data/zone_pricing.dart';
+import 'package:tuni_train/data/firestore_service.dart';
 import 'package:tuni_train/models/train.dart';
 import 'package:tuni_train/models/train_journey.dart';
 
 class PanelController extends GetxController {
   final SearchTrainController searchCtrl = Get.find<SearchTrainController>();
 
-  // ─────────────────────────────
-  // TICKETS
-  // ─────────────────────────────
+  // ───────── ALLER ticket ─────────
   Rxn<TrainJourney> journeyAller = Rxn<TrainJourney>();
   Rxn<Train> trainAller = Rxn<Train>();
+
+  // ───────── RETOUR ticket ─────────
   Rxn<TrainJourney> journeyRetour = Rxn<TrainJourney>();
   Rxn<Train> trainRetour = Rxn<Train>();
 
+  // Legacy getters (keep panel_page.dart working without changes)
   Rxn<TrainJourney> get journey => journeyAller;
   Rxn<Train> get train => trainAller;
 
-  // ─────────────────────────────
-  // SELECTIONS
-  // ─────────────────────────────
-  RxString selectedClass = "2nd".obs;
+  // ───────── SELECTIONS ─────────
+  RxString selectedClass = "2nd".obs; // "2nd" | "1st"
   RxString selectedOffer = "ORDINAIRE".obs;
+
+  // ───────── PRICE ─────────
   RxDouble totalPrice = 0.0.obs;
+
+  // Class multiplier  (1st class costs 1.6× 2nd class — adjust as needed)
+  static const double _firstClassMultiplier = 1.6;
 
   @override
   void onInit() {
@@ -32,29 +36,38 @@ class PanelController extends GetxController {
     _calculatePrice();
   }
 
+  // ─────────────────────────────
+  // SYNC from SearchTrainController every time panel becomes visible
+  // ─────────────────────────────
   void _syncFromSearch() {
     journeyAller.value = searchCtrl.selectedAller.value;
     trainAller.value = searchCtrl.selectedTrain.value;
+
     journeyRetour.value = searchCtrl.selectedRetour.value;
     if (journeyRetour.value != null) {
       trainRetour.value = searchCtrl.getTrainById(journeyRetour.value!.trainId);
     }
   }
 
+  /// Call this when PanelPage is pushed / becomes visible after retour select
   void refresh() {
     _syncFromSearch();
     _calculatePrice();
   }
 
-  int get totalPassengers => searchCtrl.totalPassengers;
+  // ─────────────────────────────
+  // COMPUTED HELPERS
+  // ─────────────────────────────
+  int get totalPassengers =>
+      searchCtrl.adults.value +
+      searchCtrl.children.value +
+      searchCtrl.babies.value;
+
   bool get hasAller => journeyAller.value != null;
   bool get hasRetour => journeyRetour.value != null;
 
-  // ─────────────────────────────
-  // DURATION
-  // ─────────────────────────────
   String get durationAllerText {
-    if (journeyAller.value == null) return "--";
+    if (!hasAller) return "--";
     return searchCtrl.calcDuration(
       journeyAller.value!.departureTime,
       journeyAller.value!.arrivalTime,
@@ -62,17 +75,85 @@ class PanelController extends GetxController {
   }
 
   String get durationRetourText {
-    if (journeyRetour.value == null) return "--";
+    if (!hasRetour) return "--";
     return searchCtrl.calcDuration(
       journeyRetour.value!.departureTime,
       journeyRetour.value!.arrivalTime,
     );
   }
 
+  // Legacy — used by old panel_page references
   String get durationText => durationAllerText;
 
   // ─────────────────────────────
-  // CLASS / OFFER
+  // BASE PRICE per ticket (2nd class)
+  // ─────────────────────────────
+
+  /// Price for the aller leg (2nd class, 1 passenger)
+  double get allerBasePrice {
+    final j = journeyAller.value;
+    if (j == null) return 0.0;
+    // Use price stored on the journey (set by FirestoreService.calculatePrice)
+    if (j.ticketPrice > 0) return j.ticketPrice;
+    // Fallback: recalculate on the fly
+    return FirestoreService.calculatePrice(j.fromStation, j.toStation);
+  }
+
+  /// Price for the retour leg (2nd class, 1 passenger)
+  double get retourBasePrice {
+    final j = journeyRetour.value;
+    if (j == null) return 0.0;
+    if (j.ticketPrice > 0) return j.ticketPrice;
+    // Return journey is the reverse route → same zone diff → same price
+    return FirestoreService.calculatePrice(j.fromStation, j.toStation);
+  }
+
+  // Price per passenger per leg for the selected class
+  double _priceForClass(double basePrice) {
+    return selectedClass.value == '1st'
+        ? basePrice * _firstClassMultiplier
+        : basePrice;
+  }
+
+  // ─────────────────────────────
+  // CALCULATE TOTAL PRICE
+  // ─────────────────────────────
+  void _calculatePrice() {
+    double total = 0.0;
+
+    if (hasAller) {
+      total += _priceForClass(allerBasePrice) * totalPassengers;
+    }
+    if (hasRetour) {
+      total += _priceForClass(retourBasePrice) * totalPassengers;
+    }
+
+    // If nothing selected yet, show the aller base price as preview
+    if (total == 0.0 && hasAller) {
+      total = _priceForClass(allerBasePrice) * totalPassengers;
+    }
+
+    totalPrice.value = total;
+  }
+
+  // ─────────────────────────────
+  // PRICE LABEL HELPERS  (for UI display)
+  // ─────────────────────────────
+
+  /// Price string for aller chip in the result list card
+  String get allerPriceLabel {
+    final p = allerBasePrice;
+    return p > 0 ? '${p.toStringAsFixed(3)} DT' : '—';
+  }
+
+  /// Price string for retour chip
+  String get retourPriceLabel {
+    final p = retourBasePrice;
+    return p > 0 ? '${p.toStringAsFixed(3)} DT' : '—';
+  }
+
+  // ─────────────────────────────
+  // ACTIONS
   // ─────────────────────────────
   void selectClass(String value) {
     selectedClass.value = value;
@@ -84,61 +165,14 @@ class PanelController extends GetxController {
     _calculatePrice();
   }
 
-  // ─────────────────────────────
-  // 🔥 ZONE-BASED PRICE CALC
-  // ─────────────────────────────
-  void _calculatePrice() {
-    double total = 0.0;
-
-    if (hasAller) {
-      double base = ZonePricing.calcBasePrice(
-        journeyAller.value!.fromStation,
-        journeyAller.value!.toStation,
-      );
-      total += _applyModifiers(base);
-    }
-
-    if (hasRetour) {
-      double base = ZonePricing.calcBasePrice(
-        journeyRetour.value!.fromStation,
-        journeyRetour.value!.toStation,
-      );
-      total += _applyModifiers(base);
-    }
-
-    if (total == 0.0 && hasAller) total = 0.800;
-    totalPrice.value = total;
-  }
-
-  double _applyModifiers(double base) {
-    double price = base;
-
-    // Class modifier
-    if (selectedClass.value == '1st') {
-      price += 1.500;
-    }
-
-    // Offer modifier
-    if (selectedOffer.value == 'JEUNE') {
-      price *= 0.8;
-    } else if (selectedOffer.value == 'ENFANT') {
-      price *= 0.5;
-    }
-
-    // Multiply by passengers
-    price *= totalPassengers;
-    return price;
-  }
-
-  // ─────────────────────────────
-  // DELETE
-  // ─────────────────────────────
   void deleteAllerTicket() {
     journeyAller.value = null;
     trainAller.value = null;
     searchCtrl.selectedAller.value = null;
     searchCtrl.selectedTrain.value = null;
+    // Aller required → also wipe retour
     deleteRetourTicket();
+    // Reset booking flow
     searchCtrl.bookingStep.value = 'ALLER';
     searchCtrl.searchMode.value = 'ALLER';
     _calculatePrice();
@@ -151,11 +185,9 @@ class PanelController extends GetxController {
     _calculatePrice();
   }
 
+  // Legacy — kept for old AppBar trash icon
   void deleteTicket() => deleteAllerTicket();
 
-  // ─────────────────────────────
-  // PAYMENT
-  // ─────────────────────────────
   void proceedToPayment() {
     if (!hasAller) {
       Get.snackbar(

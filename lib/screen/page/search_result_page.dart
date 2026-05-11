@@ -174,11 +174,7 @@ class SearchResultPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            ctrl.bookingStep.value == 'RETOUR'
-                                ? ctrl.to.value
-                                : ctrl.from.value.isEmpty
-                                ? '—'
-                                : ctrl.from.value,
+                            ctrl.from.value.isEmpty ? '—' : ctrl.from.value,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.poppins(
                               color: Colors.white,
@@ -239,11 +235,7 @@ class SearchResultPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            ctrl.bookingStep.value == 'RETOUR'
-                                ? ctrl.from.value
-                                : ctrl.to.value.isEmpty
-                                ? '—'
-                                : ctrl.to.value,
+                            ctrl.to.value.isEmpty ? '—' : ctrl.to.value,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.end,
                             style: GoogleFonts.poppins(
@@ -280,10 +272,7 @@ class SearchResultPage extends StatelessWidget {
                       _metaChip(
                         Icons.calendar_today_rounded,
                         _formatDate(
-                          ctrl.bookingStep.value == 'RETOUR'
-                              ? (ctrl.returnDateTime.value ?? DateTime.now())
-                              : (ctrl.departureDateTime.value ??
-                                    DateTime.now()),
+                          ctrl.departureDateTime.value ?? DateTime.now(),
                         ),
                       ),
                       _metaDivider(),

@@ -1,16 +1,20 @@
 class Purchase {
-  int? id;
-  DateTime? startDate;
-  DateTime? endDate;
-  String? firstName;
-  String? lastName;
-  String? email;
-  String? phoneNumber;
-  double? price;
-  String? qrCode;
+  final int? id;
 
-  // Constructor
-  Purchase({
+  final DateTime? startDate;
+  final DateTime? endDate;
+
+  final String? firstName;
+  final String? lastName;
+
+  final String? email;
+  final String? phoneNumber;
+
+  final double? price;
+
+  final String? qrCode;
+
+  const Purchase({
     this.id,
     this.startDate,
     this.endDate,
@@ -22,16 +26,7 @@ class Purchase {
     this.qrCode,
   });
 
-  // Methods
-  String generateQRCode() {
-    return "";
-  }
+  bool validate() => true;
 
-  bool validate() {
-    return true;
-  }
-
-  void markAsUsed() {
-    // logic
-  }
+  void markAsUsed() {}
 }

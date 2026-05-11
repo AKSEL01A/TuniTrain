@@ -51,18 +51,6 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
               const SizedBox(height: 10),
               _buildServices(),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  await FirestoreStationFix.fixStationZones();
-
-                  Get.snackbar(
-                    "Done",
-                    "Firestore fixed successfully",
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                },
-                child: const Text("Fix Firestore DB"),
-              ),
             ],
           ),
         ),
