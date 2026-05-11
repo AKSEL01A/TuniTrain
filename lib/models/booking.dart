@@ -1,17 +1,17 @@
-enum BookingType { CAR_RENTAL, TICKET, PROMO_OFFER, SUBSCRIPTION }
+enum BookingType { carRental, ticket, promoOffer, subscription }
 
-enum BookingStatus { PENDING, CONFIRMED, CANCELLED, COMPLETED, EXPIRED }
+enum BookingStatus { pending, confirmed, cancelled, completed, expired }
 
 class Booking {
-  int? id; // Long fil-UML wallat int f'Dart
-  DateTime? startDate; // Date wallat DateTime
+  int? id;
+  DateTime? startDate;
   DateTime? endDate;
   double? totalPrice;
   BookingType? type;
   BookingStatus? status;
   double? discount;
   String? qrCodeData;
-  bool isUsed; // boolean wallat bool
+  bool isUsed;
 
   Booking({
     this.id,
@@ -25,14 +25,10 @@ class Booking {
     this.isUsed = false,
   });
 
-  // Methods
-  void createBooking() {
-    // logic bech tasma3 booking jdid
-  }
+  void createBooking() {}
 
   void cancelBooking() {
-    // logic bech tfaskh el booking
-    this.status = BookingStatus.CANCELLED;
+    status = BookingStatus.cancelled;
   }
 
   String generateQRCode() {

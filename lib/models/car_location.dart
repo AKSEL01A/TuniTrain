@@ -1,13 +1,11 @@
-// 1. Enums
-enum FuelType { ELECTRIC, PETROL, DIESEL, HYBRID }
+enum FuelType { electric, petrol, diesel, hybrid }
 
-enum TransmissionType { AUTOMATIC, MANUAL }
+enum TransmissionType { automatic, manual }
 
-enum CarType { ECONOMY, LUXURY, SEDAN, SUV, VAN }
+enum CarType { economy, luxury, sedan, suv, van }
 
-// 2. Class CarLocation
 class CarLocation {
-  int? id; // Long f'Java wallat int f'Dart
+  int? id;
   String? companyName;
   String? location;
   String? brand;
@@ -16,9 +14,8 @@ class CarLocation {
   TransmissionType? transmission;
   CarType? carType;
   double? pricePerDay;
-  bool available; // boolean wallat bool
+  bool available;
 
-  // Constructor
   CarLocation({
     this.id,
     this.companyName,
@@ -32,7 +29,6 @@ class CarLocation {
     this.available = true,
   });
 
-  // Methods
   void bookCar() {
     // Logic bech ta3mel reservation
   }

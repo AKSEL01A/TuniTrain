@@ -18,8 +18,6 @@ class ForgotPasswordController extends GetxController {
 
       final String userEmail = email.value.trim();
 
-      print("📧 Email: $userEmail");
-
       if (userEmail.isEmpty) {
         Get.snackbar(
           'Erreur',
@@ -42,8 +40,6 @@ class ForgotPasswordController extends GetxController {
       await Future.delayed(const Duration(seconds: 2));
       Get.back();
     } on FirebaseAuthException catch (e) {
-      print("❌ Firebase error: ${e.code}");
-
       Get.snackbar(
         'Erreur',
         e.message ?? 'Erreur inconnue',
@@ -51,7 +47,12 @@ class ForgotPasswordController extends GetxController {
         colorText: Colors.white,
       );
     } catch (e) {
-      print("❌ Unknown error: $e");
+      Get.snackbar(
+        'Erreur',
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }

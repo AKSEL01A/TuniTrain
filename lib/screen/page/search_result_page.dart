@@ -1,462 +1,395 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tuni_train/controller/search_train_controller.dart';
 import 'package:tuni_train/const/colors.dart';
-import 'package:tuni_train/data/data.dart';
+import 'package:tuni_train/controller/search_train_controller.dart';
 import 'package:tuni_train/models/train_journey.dart';
 
-class SearchResultPage extends StatefulWidget {
-  const SearchResultPage({super.key});
+class SearchResultPage extends StatelessWidget {
+  SearchResultPage({super.key});
 
-  @override
-  State<SearchResultPage> createState() => _SearchResultPageState();
-}
-
-class _SearchResultPageState extends State<SearchResultPage> {
-  int _selectedDay = 2;
-
-  final _days = List.generate(
-    5,
-    (i) => DateTime.now().add(Duration(days: i - 2)),
-  );
-
-  int _toMin(String t) {
-    try {
-      final p = t.split(':');
-      return int.parse(p[0]) * 60 + int.parse(p[1]);
-    } catch (_) {
-      return 0;
-    }
-  }
-
-  String _formatTime(TimeOfDay t) {
-    final hour = t.hour.toString().padLeft(2, '0');
-    final minute = t.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
-
-  String _calcDuration(String dep, String arr) {
-    var diff = _toMin(arr) - _toMin(dep);
-    if (diff < 0) diff += 1440;
-    if (diff == 0) return '';
-    final h = diff ~/ 60;
-    final m = diff % 60;
-    if (h == 0) return '${m}min';
-    if (m == 0) return '${h}h';
-    return '${h}h ${m.toString().padLeft(2, '0')}';
-  }
-
-  bool _isNextDay(String dep, String arr) => _toMin(arr) < _toMin(dep);
-
-  List<String> _dayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  final SearchTrainController ctrl = Get.find<SearchTrainController>();
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = Get.find<SearchTrainController>();
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F4F9),
+      backgroundColor: AppColors.bgPage,
       body: Column(
         children: [
-          _buildHeader(ctrl),
-          _buildDayBar(),
-          _buildCountBar(ctrl),
-
-          // 👇 THIS IS THE IMPORTANT PART
-          Expanded(
-            child: Obx(() {
-              if (ctrl.searchLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (ctrl.nextTrains.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "No trains available",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: ctrl.nextTrains.length,
-                itemBuilder: (context, index) {
-                  final t = ctrl.nextTrains[index];
-                  return _buildTrainCard(t); // your card function
-                },
-              );
-            }),
-          ),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-
-  Widget _buildTrainCard(TrainJourney t) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("${t.fromStation} → ${t.toStation}"),
-              Text("Train ${t.trainId}"),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(t.departureTime),
-              const Icon(Icons.train),
-              Text(t.arrivalTime),
-            ],
-          ),
-
-          const SizedBox(height: 10),
-
-          Text(Get.find<SearchTrainController>().getStopsText(t)),
+          _buildHeader(context),
+          _buildStepBanner(),
+          _buildCountStrip(),
+          Expanded(child: _buildList()),
         ],
       ),
     );
   }
 
-  Widget _timeColumn(String label, String time) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-        const SizedBox(height: 4),
-        Text(
-          time,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+  // ══════════════════════════════════════════════════════════════════════════
+  //  STEP BANNER  ─  shows "Choisissez ALLER" or "Choisissez RETOUR"
+  // ══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildStepBanner() {
+    return Obx(() {
+      final isAller = ctrl.bookingStep.value == 'ALLER';
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isAller
+                ? [const Color(0xFF1565C0), const Color(0xFF1976D2)]
+                : [const Color(0xFFE65100), const Color(0xFFF57C00)],
+          ),
         ),
-      ],
-    );
+        child: Row(
+          children: [
+            Icon(
+              isAller
+                  ? Icons.arrow_circle_right_rounded
+                  : Icons.replay_circle_filled_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                isAller
+                    ? 'Étape 1 / ${ctrl.isRoundTrip ? "2" : "1"}  –  Choisissez votre train ALLER'
+                    : 'Étape 2 / 2  –  Choisissez votre train RETOUR',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            // If already picked aller and doing round-trip, show a mini chip
+            if (!isAller)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
+                  color: Colors.white.withOpacity(0.20),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.white,
+                      size: 11,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Aller sélectionné',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _chip(String text) {
+  // ══════════════════════════════════════════════════════════════════════════
+  //  HEADER
+  // ══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(10),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.blue1, AppColors.blue2],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      child: Text(text, style: const TextStyle(fontSize: 11)),
-    );
-  }
-
-  // ───────────────────────── HEADER ─────────────────────────
-  Widget _buildHeader(SearchTrainController controller) {
-    return Container(
-      color: AppColors.blue1,
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(6, 4, 6, 20),
-          child: Column(
-            children: [
-              Row(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 6, 8, 0),
+              child: Row(
                 children: [
                   IconButton(
                     icon: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.white60,
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
                       size: 18,
                     ),
                     onPressed: () => Get.back(),
                   ),
                   const Spacer(),
-                  Text(
-                    'Aller simple',
-                    style: GoogleFonts.barlow(
-                      color: Colors.white,
-                      fontSize: 19,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 3,
+                  Obx(
+                    () => Text(
+                      ctrl.isRoundTrip ? 'Aller-retour' : 'Aller simple',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.home_outlined,
-                      color: Colors.white60,
-                      size: 22,
-                    ),
-                    onPressed: () => Get.offAllNamed('/home'),
+                  _headerAction(
+                    Icons.home_rounded,
+                    () => Get.offAllNamed('/home'),
+                  ),
+                  _headerAction(
+                    Icons.shopping_bag_rounded,
+                    () => Get.toNamed('/panel'),
                   ),
                 ],
               ),
+            ),
 
-              Obx(() {
-                final from = controller.from.value;
-                final to = controller.to.value;
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'DÉPART',
-                              style: GoogleFonts.barlow(
-                                color: Colors.white38,
-                                fontSize: 9,
-                                letterSpacing: 2,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              from.isEmpty ? '—' : from,
-                              style: GoogleFonts.barlow(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w800,
-                                height: 1.1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 16,
-                          left: 12,
-                          right: 12,
-                        ),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 40,
-                              child: Divider(
-                                color: AppColors.sand.withOpacity(0.6),
-                                thickness: 1,
-                              ),
-                            ),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              color: AppColors.sand,
-                              size: 16,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'ARRIVÉE',
-                              style: GoogleFonts.barlow(
-                                color: Colors.white38,
-                                fontSize: 9,
-                                letterSpacing: 2,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              to.isEmpty ? '—' : to,
-                              textAlign: TextAlign.right,
-                              style: GoogleFonts.barlow(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w800,
-                                height: 1.1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              const SizedBox(height: 12),
-
-              Obx(() {
-                // ⚠️ adjust names depending on your controller
-                final date = controller.departureDateTime.value;
-                final time = controller.selectedTime.value;
-                final adults = controller.adults.value;
-                final babies = controller.babies.value;
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // DATE + TIME
-                      Column(
+            // Route banner
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+              child: Obx(
+                () => Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'DATE',
-                            style: GoogleFonts.barlow(
-                              color: Colors.white38,
+                            'DÉPART',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white54,
                               fontSize: 9,
-                              letterSpacing: 2,
+                              letterSpacing: 1.5,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            date == null
-                                ? "—"
-                                : "${date.day.toString().padLeft(2, '0')} "
-                                      "${DaysData.months[date.month - 1]} "
-                                      "${date.year}",
-                            style: GoogleFonts.barlow(
+                            ctrl.bookingStep.value == 'RETOUR'
+                                ? ctrl.to.value
+                                : ctrl.from.value.isEmpty
+                                ? '—'
+                                : ctrl.from.value,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(
                               color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          Text(
-                            'TIME',
-                            style: GoogleFonts.barlow(
-                              color: Colors.white38,
-                              fontSize: 9,
-                              letterSpacing: 2,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            time == null ? "—" : time.format(context),
-                            style: GoogleFonts.barlow(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
                       ),
-
-                      // PASSENGERS
-                      Column(
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          // ignore: deprecated_member_use
+                          color: AppColors.sand.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 18,
+                              height: 1,
+                              color: Colors.white38,
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.train_rounded,
+                              color: AppColors.sand,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Container(
+                              width: 18,
+                              height: 1,
+                              color: Colors.white38,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'PASSAGERS',
-                            style: GoogleFonts.barlow(
-                              color: Colors.white38,
+                            'ARRIVÉE',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white54,
                               fontSize: 9,
-                              letterSpacing: 2,
+                              letterSpacing: 1.5,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: 3),
-
                           Text(
-                            'Adult: $adults',
-                            style: GoogleFonts.barlow(
+                            ctrl.bookingStep.value == 'RETOUR'
+                                ? ctrl.from.value
+                                : ctrl.to.value.isEmpty
+                                ? '—'
+                                : ctrl.to.value,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.end,
+                            style: GoogleFonts.poppins(
                               color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          Text(
-                            'Bébé: $babies',
-                            style: GoogleFonts.barlow(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Meta row
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+              child: Obx(
+                () => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
+                    color: Colors.white.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _metaChip(
+                        Icons.calendar_today_rounded,
+                        _formatDate(
+                          ctrl.bookingStep.value == 'RETOUR'
+                              ? (ctrl.returnDateTime.value ?? DateTime.now())
+                              : (ctrl.departureDateTime.value ??
+                                    DateTime.now()),
+                        ),
+                      ),
+                      _metaDivider(),
+                      _metaChip(
+                        Icons.access_time_rounded,
+                        ctrl.selectedTime.value?.format(Get.context!) ?? '—',
+                      ),
+                      _metaDivider(),
+                      _metaChip(
+                        Icons.person_rounded,
+                        '${ctrl.adults.value} Ad · ${ctrl.babies.value} Bé',
+                      ),
                     ],
                   ),
-                );
-              }),
-            ],
-          ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // ───────────────────────── DAY BAR ─────────────────────────
-  Widget _buildDayBar() {
-    return Container(
-      color: AppColors.blue1,
-      child: Column(
-        children: [
-          Container(height: 1, color: AppColors.sand.withOpacity(0.25)),
-          SizedBox(
-            height: 60,
-            child: Row(
-              children: List.generate(_days.length, (i) {
-                final d = _days[i];
-                final isSelected = i == _selectedDay;
+  Widget _headerAction(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        margin: const EdgeInsets.only(left: 4),
+        decoration: BoxDecoration(
+          // ignore: deprecated_member_use
+          color: Colors.white.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: Colors.white70, size: 18),
+      ),
+    );
+  }
 
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedDay = i),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: isSelected
-                                ? AppColors.sand
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _dayLabels[d.weekday - 1].toUpperCase(),
-                            style: GoogleFonts.barlow(
-                              color: isSelected
-                                  ? AppColors.sand
-                                  : Colors.white38,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            d.day.toString().padLeft(2, '0'),
-                            style: GoogleFonts.barlow(
-                              color: isSelected ? Colors.white : Colors.white54,
-                              fontSize: 18,
-                              fontWeight: isSelected
-                                  ? FontWeight.w800
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
+  Widget _metaChip(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white54, size: 13),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _metaDivider() => Container(
+    width: 1,
+    height: 14,
+    // ignore: deprecated_member_use
+    color: Colors.white.withValues(alpha: 0.2),
+  );
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  COUNT STRIP
+  // ══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildCountStrip() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Obx(
+            () => Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.bluePale,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${ctrl.nextTrains.length}',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.blue1,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                );
-              }),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'trains disponibles',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.blue3,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -464,36 +397,504 @@ class _SearchResultPageState extends State<SearchResultPage> {
     );
   }
 
-  // ───────────────────────── COUNT BAR ─────────────────────────
-  Widget _buildCountBar(SearchTrainController controller) {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        children: [
-          Obx(
-            () => RichText(
-              text: TextSpan(
+  // ══════════════════════════════════════════════════════════════════════════
+  //  LIST
+  // ══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildList() {
+    return Obx(() {
+      if (ctrl.searchLoading.value) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(
+                color: AppColors.blue1,
+                strokeWidth: 2,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Recherche en cours…',
+                style: GoogleFonts.poppins(
+                  color: AppColors.blue3,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      if (ctrl.nextTrains.isEmpty) return _buildEmptyState();
+      return ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        itemCount: ctrl.nextTrains.length,
+        itemBuilder: (_, i) => _buildTrainCard(ctrl.nextTrains[i]),
+      );
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  TRAIN CARD
+  // ══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildTrainCard(TrainJourney t) {
+    final trainInfo = ctrl.getTrainById(t.trainId);
+    final status = ctrl.getTrainStatus(t, trainInfo);
+    final statusColor = ctrl.getTrainStatusColor(status);
+    final statusBg = ctrl.getTrainStatusBg(status);
+
+    return GestureDetector(
+      onTap: () => _onTrainSelected(t),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              // ignore: deprecated_member_use
+              color: AppColors.blue1.withOpacity(0.07),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Card top
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextSpan(
-                    text: '${controller.nextTrains.length}',
-                    style: GoogleFonts.barlow(
-                      color: AppColors.blue1,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.bluePale,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      trainInfo?.lineId ?? 'LINE',
+                      style: GoogleFonts.poppins(
+                        color: AppColors.blue1,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
-                  TextSpan(
-                    text: ' trains disponibles',
-                    style: GoogleFonts.barlow(color: Colors.grey, fontSize: 13),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          status.contains('Retard')
+                              ? Icons.schedule_rounded
+                              : status == 'Pas encore parti'
+                              ? Icons.access_time_filled_rounded
+                              : Icons.check_circle_rounded,
+                          color: statusColor,
+                          size: 11,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          status,
+                          style: GoogleFonts.poppins(
+                            color: statusColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '#${t.trainId}',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.blue3,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
             ),
+
+            // Route row
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.departureTime,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.blue1,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        Text(
+                          t.fromStation,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.blue3,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        ctrl.calcDuration(t.departureTime, t.arrivalTime),
+                        style: GoogleFonts.poppins(
+                          color: AppColors.sand,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            width: 4,
+                            height: 4,
+                            decoration: const BoxDecoration(
+                              color: AppColors.blue3,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          Container(
+                            width: 28,
+                            height: 1,
+                            color: const Color(0xFFB0C8E8),
+                          ),
+                          const Icon(
+                            Icons.train_rounded,
+                            color: AppColors.blue2,
+                            size: 18,
+                          ),
+                          Container(
+                            width: 28,
+                            height: 1,
+                            color: const Color(0xFFB0C8E8),
+                          ),
+                          Container(
+                            width: 4,
+                            height: 4,
+                            decoration: const BoxDecoration(
+                              color: AppColors.blue3,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        ctrl.getStopsText(t),
+                        style: GoogleFonts.poppins(
+                          color: AppColors.blue3,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          t.arrivalTime,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.blue1,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        Text(
+                          t.toStation,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.blue3,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            // Dashed divider
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: LayoutBuilder(
+                builder: (_, c) {
+                  final n = (c.maxWidth / 8).floor();
+                  return Row(
+                    children: List.generate(
+                      n,
+                      (_) => Expanded(
+                        child: Container(
+                          height: 1,
+                          color: (n % 2 == 0)
+                              ? const Color(0xFFDDE6F5)
+                              : Colors.transparent,
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Info chips
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _infoChip(
+                    Icons.speed_rounded,
+                    'VITESSE',
+                    trainInfo != null ? '${trainInfo.currentSpeed} km/h' : '--',
+                    AppColors.blue1,
+                    AppColors.bluePale,
+                  ),
+                  _chipDivider(),
+                  _infoChip(
+                    Icons.event_seat_rounded,
+                    'PLACES',
+                    trainInfo != null
+                        ? '${trainInfo.occupiedSeats}/${trainInfo.totalCapacity}'
+                        : '--',
+                    AppColors.green,
+                    AppColors.greenBg,
+                  ),
+                  _chipDivider(),
+                  _infoChip(
+                    Icons.monetization_on_rounded,
+                    'À PARTIR DE',
+                    '5.600 DT',
+                    AppColors.sand,
+                    AppColors.sandBg,
+                  ),
+                ],
+              ),
+            ),
+
+            // CTA strip
+            Container(
+              decoration: const BoxDecoration(
+                color: AppColors.blue1,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(22),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Obx(
+                    () => Text(
+                      ctrl.bookingStep.value == 'ALLER'
+                          ? 'Sélectionner ce train aller'
+                          : 'Sélectionner ce train retour',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Core selection logic ────────────────────────────────────────────────
+  void _onTrainSelected(TrainJourney t) {
+    final trainInfo = ctrl.getTrainById(t.trainId);
+
+    if (ctrl.bookingStep.value == 'ALLER') {
+      // ── ALLER selected ──────────────────────────────────────────────────
+      ctrl.selectedAller.value = t;
+      ctrl.selectedTrain.value = trainInfo;
+
+      if (ctrl.isRoundTrip) {
+        // Round-trip: switch to RETOUR step, swap stations, reload
+        ctrl.bookingStep.value = 'RETOUR';
+        ctrl.searchMode.value = 'RETOUR';
+
+        // Swap from/to for return journey display
+        final tmpFrom = ctrl.from.value;
+        final tmpFromId = ctrl.fromId.value;
+        ctrl.from.value = ctrl.to.value;
+        ctrl.fromId.value = ctrl.toId.value;
+        ctrl.to.value = tmpFrom;
+        ctrl.toId.value = tmpFromId;
+
+        // Use return date/time for the search
+        ctrl.departureDateTime.value = ctrl.returnDateTime.value;
+        if (ctrl.returnDateTime.value != null) {
+          ctrl.selectedTime.value = TimeOfDay(
+            hour: ctrl.returnDateTime.value!.hour,
+            minute: ctrl.returnDateTime.value!.minute,
+          );
+        }
+
+        ctrl.search();
+      } else {
+        // One-way: go directly to panel
+        Get.toNamed('/panel');
+      }
+    } else {
+      // ── RETOUR selected ─────────────────────────────────────────────────
+      ctrl.selectRetour(t, trainInfo);
+    }
+  }
+
+  Widget _infoChip(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+    Color bg,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 13),
+          const SizedBox(width: 6),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  color: color,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              Text(
+                value,
+                style: GoogleFonts.poppins(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
-          const Spacer(),
         ],
       ),
     );
+  }
+
+  Widget _chipDivider() =>
+      Container(width: 1, height: 28, color: const Color(0xFFDDE6F5));
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              color: AppColors.bluePale,
+              borderRadius: BorderRadius.circular(26),
+            ),
+            child: const Icon(
+              Icons.train_outlined,
+              color: AppColors.blue3,
+              size: 44,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Aucun train disponible',
+            style: GoogleFonts.poppins(
+              color: AppColors.blue1,
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Essayez un autre jour ou un autre trajet',
+            style: GoogleFonts.poppins(color: AppColors.blue3, fontSize: 12),
+          ),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: () => Get.back(),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 13),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.blue2, AppColors.blue1],
+                ),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text(
+                'Modifier la recherche',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime d) {
+    return '${d.day.toString().padLeft(2, '0')}/'
+        '${d.month.toString().padLeft(2, '0')}/'
+        '${d.year}';
   }
 }

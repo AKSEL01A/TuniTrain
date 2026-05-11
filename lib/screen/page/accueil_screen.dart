@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 
 import 'package:tuni_train/const/colors.dart';
 import 'package:tuni_train/controller/accueil_controller.dart';
-import 'package:tuni_train/screen/page/search_train.dart';
+import 'package:tuni_train/data/database_service.dart';
+import 'package:tuni_train/models/service.dart';
 
 class AccueilPageScreen extends StatefulWidget {
   const AccueilPageScreen({super.key});
@@ -15,27 +16,23 @@ class AccueilPageScreen extends StatefulWidget {
 }
 
 class _AccueilPageScreenState extends State<AccueilPageScreen> {
-  final AccueilController controller = Get.put(AccueilController());
+  final AccueilController controller = Get.find<AccueilController>();
 
-  DateTime _selectedDate = DateTime.now();
+  DateTime selectedDate = DateTime.now();
+
+  String get todayStr =>
+      DateFormat('EEEE, d MMMM yyyy', 'fr_FR').format(DateTime.now());
+
+  String get selectedDateStr =>
+      DateFormat('d MMMM yyyy', 'fr_FR').format(selectedDate);
+
+  bool get isToday =>
+      selectedDate.day == DateTime.now().day &&
+      selectedDate.month == DateTime.now().month &&
+      selectedDate.year == DateTime.now().year;
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = DateFormat(
-      'EEEE, d MMMM yyyy',
-      'fr_FR',
-    ).format(DateTime.now());
-
-    final selectedDateStr = DateFormat(
-      'd MMMM yyyy',
-      'fr_FR',
-    ).format(_selectedDate);
-
-    final isToday =
-        _selectedDate.day == DateTime.now().day &&
-        _selectedDate.month == DateTime.now().month &&
-        _selectedDate.year == DateTime.now().year;
-
     return Scaffold(
       backgroundColor: AppColors.bgPage,
       body: SafeArea(
@@ -44,25 +41,28 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(dateStr),
-
+              _buildHeader(todayStr),
               const SizedBox(height: 20),
-
               _buildSearchCard(selectedDateStr, isToday),
-
               const SizedBox(height: 24),
-
               _buildSectionTitle('Destinations populaires'),
-
               const SizedBox(height: 24),
-
               _buildSectionTitle('Services à bord'),
-
               const SizedBox(height: 10),
-
               _buildServices(),
-
               const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  await FirestoreStationFix.fixStationZones();
+
+                  Get.snackbar(
+                    "Done",
+                    "Firestore fixed successfully",
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+                child: const Text("Fix Firestore DB"),
+              ),
             ],
           ),
         ),
@@ -70,9 +70,7 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────
-  // HEADER
-  // ─────────────────────────────────────────────
+  // ───────────────── HEADER ─────────────────
 
   Widget _buildHeader(String dateStr) {
     return Row(
@@ -85,11 +83,9 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
               dateStr,
               style: GoogleFonts.poppins(color: AppColors.blue3, fontSize: 12),
             ),
-
             const SizedBox(height: 4),
-
             Text(
-              'Bonjour, Hadil 👋',
+              'Bonjour 👋',
               style: GoogleFonts.poppins(
                 color: AppColors.blue1,
                 fontSize: 20,
@@ -98,244 +94,208 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
             ),
           ],
         ),
-
-        Container(
-          width: 44,
-          height: 44,
-          decoration: const BoxDecoration(
-            color: AppColors.blue1,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              'H',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        CircleAvatar(
+          backgroundColor: AppColors.blue1,
+          child: Text('H', style: GoogleFonts.poppins(color: Colors.white)),
         ),
       ],
     );
   }
 
-  // ─────────────────────────────────────────────
-  // SEARCH CARD
-  // ─────────────────────────────────────────────
+  // ───────────────── SEARCH CARD ─────────────────
 
   Widget _buildSearchCard(String selectedDateStr, bool isToday) {
+    return GestureDetector(
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppColors.blue1,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.train_rounded, color: Colors.white),
+                const SizedBox(width: 10),
+                Text(
+                  'Réserver un billet',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            _buildStations(),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: () => Get.toNamed('/searchtrain'),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.search_rounded,
+                      color: AppColors.bgPage,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Rechercher un train",
+                      style: TextStyle(
+                        color: AppColors.bgPage,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStations() {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.blue1,
-        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1B4F8A), Color(0xFF2E6DB4)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          // TITLE
+          // ───── Departure ─────
           Row(
             children: [
-              Icon(
-                Icons.train_rounded,
-                color: Colors.white.withValues(alpha: 0.9),
-                size: 22,
-              ),
-
-              const SizedBox(width: 10),
-
-              Text(
-                'Réserver un billet',
-                style: GoogleFonts.poppins(
+              Container(
+                width: 10,
+                height: 10,
+                decoration: const BoxDecoration(
                   color: Colors.white,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  "Station de départ",
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.95),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 10),
 
-          // FROM -> TO FIELD
-          GestureDetector(
-            onTap: () {
-              Get.to(() => const SearchTrainPage());
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-              ),
-              child: Row(
-                children: [
-                  // LEFT ICONS
-                  Column(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
+          // ───── Connector (SEARCH / ROUTE INDICATOR) ─────
+          Row(
+            children: [
+              Expanded(child: Container(height: 1, color: Colors.white24)),
 
-                      Container(
-                        width: 2,
-                        height: 30,
-                        color: Colors.white.withValues(alpha: 0.5),
-                      ),
-
-                      const Icon(
-                        Icons.location_on_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(width: 14),
-
-                  // TEXTS
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Station de départ",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        Divider(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          height: 1,
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        Text(
-                          "Station d'arrivée",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
+              GestureDetector(
+                onTap: () => Get.toNamed('/searchtrain'),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
                     color: Colors.white,
-                    size: 16,
+                    shape: BoxShape.circle,
                   ),
-                ],
+                  child: const Icon(
+                    Icons.search_rounded,
+                    size: 25,
+                    color: Color(0xFF1B4F8A),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
 
-          // SEARCH BUTTON
-          GestureDetector(
-            onTap: () {
-              Get.to(() => const SearchTrainPage());
-            },
-            child: Container(
-              width: double.infinity,
-              height: 52,
-              decoration: BoxDecoration(
-                color: AppColors.blue2,
-                borderRadius: BorderRadius.circular(16),
+          // ───── Arrival ─────
+          // ───── Arrival ─────
+          Row(
+            children: [
+              const Icon(
+                Icons.location_on_rounded,
+                color: Colors.white,
+                size: 18,
               ),
-              child: Center(
+              const SizedBox(width: 10),
+
+              Expanded(
                 child: Text(
-                  'Rechercher un train',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14,
+                  "Station d'arrivée",
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.95),
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  // ─────────────────────────────────────────────
-  // SERVICES
-  // ─────────────────────────────────────────────
+  // ───────────────── SERVICES ─────────────────
 
   Widget _buildServices() {
     final services = [
-      _Service(Icons.coffee_rounded, 'Café'),
-      _Service(Icons.wifi_rounded, 'Wi-Fi'),
-      _Service(Icons.airline_seat_recline_normal_rounded, 'Confort'),
-      _Service(Icons.usb_rounded, 'USB'),
+      Service(Icons.coffee, 'Café'),
+      Service(Icons.wifi, 'Wi-Fi'),
+      Service(Icons.airline_seat_recline_normal, 'Confort'),
+      Service(Icons.usb, 'USB'),
     ];
 
     return Row(
-      children: services.map((service) {
+      children: services.map((s) {
         return Expanded(
-          child: Container(
-            margin: EdgeInsets.only(right: service == services.last ? 0 : 10),
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFB0C8E8), width: 0.5),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.bluePale,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(service.icon, color: AppColors.blue1, size: 18),
-                ),
-
-                const SizedBox(height: 6),
-
-                Text(
-                  service.label,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    color: AppColors.blue1,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
+          child: Column(
+            children: [
+              Icon(s.icon, color: AppColors.blue1),
+              const SizedBox(height: 6),
+              Text(s.label),
+            ],
           ),
         );
       }).toList(),
     );
   }
 
-  // ─────────────────────────────────────────────
-  // SECTION TITLE
-  // ─────────────────────────────────────────────
+  // ───────────────── TITLE ─────────────────
 
   Widget _buildSectionTitle(String title) {
     return Text(
@@ -347,15 +307,4 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
       ),
     );
   }
-}
-
-// ─────────────────────────────────────────────
-// SERVICE MODEL
-// ─────────────────────────────────────────────
-
-class _Service {
-  final IconData icon;
-  final String label;
-
-  const _Service(this.icon, this.label);
 }

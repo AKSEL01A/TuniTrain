@@ -1,4 +1,4 @@
-enum PlaceType { HISTORIC_SITE, RESTAURANT, HOTEL, ADVENTURE, ENTERTAINMENT }
+enum PlaceType { historicSite, restaurant, hotel, adventure, entertainment }
 
 class Place {
   int? id;
@@ -13,7 +13,6 @@ class Place {
   DateTime? createdAt;
   String? imageUrl;
 
-  // Constructor
   Place({
     this.id,
     this.name,
@@ -28,7 +27,6 @@ class Place {
     this.imageUrl,
   });
 
-  // Methods mta3 el-Diagramme
   List<dynamic> getAllOffers() {
     return [];
   }

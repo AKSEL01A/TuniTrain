@@ -4,7 +4,13 @@ class TrainTime {
   final String id;
   final int trainId;
   final String lineId;
+
+  // 🔥 OLD (keep for display only)
   final String stationName;
+
+  // 🔥 NEW (IMPORTANT)
+  final String stationId;
+
   final int stopOrder;
 
   final String? departureTime;
@@ -15,7 +21,10 @@ class TrainTime {
     required this.id,
     required this.trainId,
     required this.lineId,
+
     required this.stationName,
+    required this.stationId,
+
     required this.stopOrder,
     this.departureTime,
     this.arrivalTime,
@@ -23,16 +32,13 @@ class TrainTime {
   });
 
   // ─────────────────────────────
-  // CLEANER (IMPORTANT 🔥)
+  // CLEANERS
   // ─────────────────────────────
   static String? clean(dynamic v) {
     if (v == null) return null;
-
     final s = v.toString().trim();
-
     if (s.isEmpty) return null;
     if (s.toUpperCase() == 'NULL') return null;
-
     return s;
   }
 
@@ -42,7 +48,7 @@ class TrainTime {
   }
 
   // ─────────────────────────────
-  // FIRESTORE FACTORY
+  // FIRESTORE
   // ─────────────────────────────
   factory TrainTime.fromFirestore(DocumentSnapshot doc) {
     final map = doc.data() as Map<String, dynamic>;
@@ -52,7 +58,12 @@ class TrainTime {
 
       trainId: cleanInt(map['trainId']),
       lineId: map['lineId'] ?? '',
+
       stationName: map['stationName'] ?? '',
+
+      // 🔥 NEW FIELD (IMPORTANT)
+      stationId: map['stationId'] ?? '',
+
       stopOrder: cleanInt(map['stopOrder']),
 
       departureTime: clean(map['departureTime']),
@@ -62,13 +73,16 @@ class TrainTime {
   }
 
   // ─────────────────────────────
-  // TO MAP (FOR FIRESTORE WRITE)
+  // WRITE TO FIRESTORE
   // ─────────────────────────────
   Map<String, dynamic> toMap() {
     return {
       'trainId': trainId,
       'lineId': lineId,
+
       'stationName': stationName,
+      'stationId': stationId,
+
       'stopOrder': stopOrder,
       'departureTime': departureTime,
       'arrivalTime': arrivalTime,
@@ -79,7 +93,6 @@ class TrainTime {
   // ─────────────────────────────
   // HELPERS
   // ─────────────────────────────
-
   bool get hasTime => departureTime != null || arrivalTime != null;
 
   String get displayDeparture => departureTime ?? '--';

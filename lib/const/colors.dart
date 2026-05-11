@@ -16,4 +16,7 @@ class AppColors {
   static const redLight = Color(0xFFFCEBEB);
   static const white = Color(0xFFFFFFFF);
   static const Color background = Color(0xFFF5F7FA);
+  static const redBg = Color(0xFFFFEBEA);
+  static const greenBg = Color(0xFFE1F5EE);
+  static const sandBg = Color(0xFFFAEEDA);
 }

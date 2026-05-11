@@ -78,14 +78,14 @@ class LoginController extends GetxController {
       // user cancelled
       if (googleUser == null) {
         isLoading.value = false;
-        print("❌ Google sign-in cancelled");
+        debugPrint("❌ Google sign-in cancelled");
         return;
       }
 
-      print("✅ Selected Google account:");
-      print("👉 Name: ${googleUser.displayName}");
-      print("👉 Email: ${googleUser.email}");
-      print("👉 ID: ${googleUser.id}");
+      debugPrint("✅ Selected Google account:");
+      debugPrint("👉 Name: ${googleUser.displayName}");
+      debugPrint("👉 Email: ${googleUser.email}");
+      debugPrint("👉 ID: ${googleUser.id}");
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
@@ -97,9 +97,9 @@ class LoginController extends GetxController {
 
       final userCredential = await _auth.signInWithCredential(credential);
 
-      print("🔥 Firebase login success:");
-      print("👉 UID: ${userCredential.user?.uid}");
-      print("👉 Email: ${userCredential.user?.email}");
+      debugPrint("🔥 Firebase login success:");
+      debugPrint("👉 UID: ${userCredential.user?.uid}");
+      debugPrint("👉 Email: ${userCredential.user?.email}");
 
       isLoading.value = false;
 
@@ -114,7 +114,7 @@ class LoginController extends GetxController {
     } catch (e) {
       isLoading.value = false;
 
-      print("❌ LOGIN ERROR: $e");
+      debugPrint("❌ LOGIN ERROR: $e");
 
       Get.snackbar(
         "Error",

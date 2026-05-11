@@ -1,6 +1,6 @@
 import 'package:tuni_train/models/purchase.dart';
 
-enum SubscriptionStatus { ACTIVE, EXPIRED, PENDING, BLOCKED }
+enum SubscriptionStatus { active, expired, pending, blocked }
 
 class Subscription extends Purchase {
   bool isStudent;
@@ -9,16 +9,12 @@ class Subscription extends Purchase {
   Subscription({required this.isStudent, required this.status, super.id});
 
   bool isActive() {
-    return status == SubscriptionStatus.ACTIVE;
+    return status == SubscriptionStatus.active;
   }
 
   int calculateRemainingDays() {
     if (endDate == null) return 0;
-    return endDate!.difference(DateTime.now()).inDays;
-  }
 
-  @override
-  String generateQRCode() {
-    return super.generateQRCode();
+    return endDate!.difference(DateTime.now()).inDays;
   }
 }

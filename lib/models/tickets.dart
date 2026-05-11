@@ -1,33 +1,42 @@
-// 1. El-Enum f'Dart ma fihach kelmet "public"
 import 'package:tuni_train/models/purchase.dart';
 
-enum TicketStatus { ACTIVE, USED, EXPIRED }
+enum TicketStatus { active, used, expired }
 
-// 2. Class Ticket extends Purchase
 class Ticket extends Purchase {
-  TicketStatus? status;
+  TicketStatus status;
 
-  // Constructor (lezem dima f'Dart)
   Ticket({
-    this.status,
-    super.id, 
-    super.startDate,
-    super.endDate,
-  });
-
-  @override 
-  String generateQRCode() {
-    return super.generateQRCode();
-  }
+    required int id,
+    required DateTime startDate,
+    required String lastName,
+    required String firstName,
+    required String email,
+    required DateTime endDate,
+    required double price,
+    required String phoneNumber,
+    required String qrCode,
+    required this.status,
+  }) : super(
+         id: id,
+         startDate: startDate,
+         lastName: lastName,
+         firstName: firstName,
+         email: email,
+         endDate: endDate,
+         price: price,
+         phoneNumber: phoneNumber,
+         qrCode: qrCode,
+       );
 
   @override
   bool validate() {
-    // f'Dart nasta3mlou "bool" mouch "boolean"
-    return super.validate();
+    // Overriding to check both dates (from parent) AND status
+    return super.validate() && status == TicketStatus.active;
   }
 
   @override
   void markAsUsed() {
+    status = TicketStatus.used;
     super.markAsUsed();
   }
 }
