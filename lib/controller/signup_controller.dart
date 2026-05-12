@@ -125,7 +125,6 @@ class RegisterController extends GetxController {
         lastName: lastName,
         email: email,
         phone: phone,
-        password: "", // ما نخزّنش password في Firestore 🔥
         createdAt: DateTime.now(),
       );
 

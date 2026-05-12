@@ -3,13 +3,17 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tuni_train/const/colors.dart';
 import 'package:tuni_train/controller/my_journey_controller.dart';
-
-import '../../models/tickets.dart';
+import 'package:tuni_train/models/tickets.dart';
+import 'package:tuni_train/screen/page/journey_route_screen.dart';
+import 'package:tuni_train/screen/page/qr_screen.dart';
 
 class MyJourneyPage extends StatelessWidget {
   MyJourneyPage({super.key});
 
-  final MyJourneyController ctrl = Get.put(MyJourneyController());
+  final MyJourneyController ctrl = Get.put(
+    MyJourneyController(),
+    permanent: false,
+  );
 
   // ── Month names (FR) ───────────────────────────────────────────────────
   static const List<String> _months = [
@@ -27,6 +31,7 @@ class MyJourneyPage extends StatelessWidget {
     'Nov',
     'Déc',
   ];
+
   static const List<String> _days = [
     '',
     'Lun',
@@ -96,14 +101,13 @@ class MyJourneyPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Refresh button
                   GestureDetector(
                     onTap: ctrl.refresh,
                     child: Container(
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
@@ -161,9 +165,9 @@ class MyJourneyPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color: Colors.white.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.15)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
@@ -210,7 +214,7 @@ class MyJourneyPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: AppColors.blue1.withOpacity(0.15),
+              color: AppColors.blue1.withValues(alpha: 0.15),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -327,25 +331,32 @@ class MyJourneyPage extends StatelessWidget {
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildBody() {
     return Obx(() {
+      // ── Loading ──────────────────────────────────────────────────────────
       if (ctrl.isLoading.value) return _buildSkeleton();
-      if (ctrl.hasError.value) return _buildError();
-      if (ctrl.displayedTickets.isEmpty) return _buildEmpty();
 
+      // ── Error ────────────────────────────────────────────────────────────
+      if (ctrl.hasError.value) return _buildError();
+
+      // ── Access selectedTab & searchQuery inside Obx so it reacts ────────
+      final tab = ctrl.selectedTab.value;
+      final query = ctrl.searchQuery.value;
+      final tickets = ctrl.displayedTickets;
+
+      // ── Empty ────────────────────────────────────────────────────────────
+      if (tickets.isEmpty) return _buildEmpty(tab);
+
+      // ── List ─────────────────────────────────────────────────────────────
       return RefreshIndicator(
         color: AppColors.blue1,
         onRefresh: ctrl.refresh,
         child: ListView.builder(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
-          itemCount: ctrl.displayedTickets.length,
+          itemCount: tickets.length,
           itemBuilder: (_, i) {
-            final ticket = ctrl.displayedTickets[i];
-            // Group by month: show month header when month changes
+            final ticket = tickets[i];
             final showHeader =
                 i == 0 ||
-                _differentMonth(
-                  ctrl.displayedTickets[i - 1].travelDate,
-                  ticket.travelDate,
-                );
+                _differentMonth(tickets[i - 1].travelDate, ticket.travelDate);
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -396,7 +407,7 @@ class MyJourneyPage extends StatelessWidget {
   // ══════════════════════════════════════════════════════════════════════════
   //  TICKET CARD
   // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildTicketCard(Ticket ticket) {
+  Widget _buildTicketCard(MyTicket ticket) {
     final isPast = ctrl.minutesUntilDeparture(ticket) == null;
     final countdownLabel = ctrl.countdownLabel(ticket);
     final countdownColor = ctrl.countdownColor(ticket);
@@ -409,8 +420,8 @@ class MyJourneyPage extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isPast
-                ? Colors.black.withOpacity(0.04)
-                : AppColors.blue1.withOpacity(0.08),
+                ? Colors.black.withValues(alpha: 0.04)
+                : AppColors.blue1.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -420,12 +431,11 @@ class MyJourneyPage extends StatelessWidget {
         opacity: isPast ? 0.65 : 1.0,
         child: Column(
           children: [
-            // ── TOP: line badge + status + countdown ──────────────────────
+            // ── TOP ───────────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
               child: Row(
                 children: [
-                  // Line badge
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -447,10 +457,7 @@ class MyJourneyPage extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 8),
-
-                  // Ticket code
                   Text(
                     ticket.ticketCode,
                     style: GoogleFonts.poppins(
@@ -459,10 +466,7 @@ class MyJourneyPage extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-
                   const Spacer(),
-
-                  // Countdown / status badge
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 9,
@@ -471,7 +475,7 @@ class MyJourneyPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isPast
                           ? const Color(0xFFF0F0F0)
-                          : countdownColor.withOpacity(0.10),
+                          : countdownColor.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -536,7 +540,6 @@ class MyJourneyPage extends StatelessWidget {
                   // CENTER
                   Column(
                     children: [
-                      // Date pill
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -638,7 +641,7 @@ class MyJourneyPage extends StatelessWidget {
               ),
             ),
 
-            // ── RETURN LEG (if round trip) ────────────────────────────────
+            // ── RETURN LEG ────────────────────────────────────────────────
             if (ticket.isRoundTrip && ticket.returnFromStation != null) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
@@ -647,7 +650,9 @@ class MyJourneyPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF3E0),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.sand.withOpacity(0.3)),
+                    border: Border.all(
+                      color: AppColors.sand.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -657,16 +662,17 @@ class MyJourneyPage extends StatelessWidget {
                         size: 14,
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        'Retour: ${ticket.returnDepartureTime ?? '--'} · ${ticket.returnFromStation} → ${ticket.returnToStation}',
-                        style: GoogleFonts.poppins(
-                          color: const Color(0xFFE65100),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        child: Text(
+                          'Retour: ${ticket.returnDepartureTime ?? '--'} · ${ticket.returnFromStation} → ${ticket.returnToStation}',
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFFE65100),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      const Spacer(),
                       if (ticket.returnDate != null)
                         Text(
                           _shortDate(ticket.returnDate!),
@@ -735,7 +741,7 @@ class MyJourneyPage extends StatelessWidget {
                   _infoChip(
                     Icons.monetization_on_rounded,
                     'PRIX',
-                    '${ticket.price?.toStringAsFixed(3)} DT',
+                    '${ticket.totalPrice.toStringAsFixed(3)} DT',
                     AppColors.sand,
                     AppColors.sandBg,
                     isPast: isPast,
@@ -764,11 +770,10 @@ class MyJourneyPage extends StatelessWidget {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  CARD CTA  (bottom strip)
+  //  CARD CTA
   // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildCardCta(Ticket ticket, bool isPast) {
+  Widget _buildCardCta(MyTicket ticket, bool isPast) {
     if (isPast) {
-      // Past ticket → just show "Terminé" grey strip
       return Container(
         decoration: const BoxDecoration(
           color: Color(0xFFF0F0F0),
@@ -797,435 +802,95 @@ class MyJourneyPage extends StatelessWidget {
       );
     }
 
-    // Active ticket → "Voir billet" + cancel button
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.blue1,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(22)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      child: Row(
-        children: [
-          // View QR / ticket button
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _showTicketDetail(ticket),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.qr_code_rounded,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Voir le billet',
-                    style: GoogleFonts.poppins(
+      child: GestureDetector(
+        onTap: () => Get.to(
+          () => QrTicketScreen(directTicket: ticket),
+          transition: Transition.downToUp,
+          duration: const Duration(milliseconds: 350),
+        ),
+        child: Row(
+          children: [
+            // ── "Voir le billet" (QR) button ─────────────────────────────────
+            Expanded(
+              child: GestureDetector(
+                onTap: () => Get.to(
+                  () => QrTicketScreen(directTicket: ticket),
+                  transition: Transition.downToUp,
+                  duration: const Duration(milliseconds: 350),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.qr_code_rounded,
                       color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      size: 16,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    Text(
+                      'Voir le billet',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          Container(width: 1, height: 20, color: Colors.white.withOpacity(0.2)),
+            // ── Vertical divider ─────────────────────────────────────────────
+            Container(
+              width: 1,
+              height: 22,
+              color: Colors.white.withValues(alpha: 0.25),
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+            ),
 
-          // Cancel button
-          GestureDetector(
-            onTap: () => _confirmCancel(ticket),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            // ── "Voir Votre Trajet" text link ─────────────────────────────────
+            GestureDetector(
+              onTap: () => Get.to(
+                () => JourneyRouteScreen(ticket: ticket),
+                transition: Transition.rightToLeft,
+                duration: const Duration(milliseconds: 350),
+              ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(
-                    Icons.cancel_outlined,
-                    color: Colors.white60,
+                    Icons.route_rounded,
+                    color: Colors.white70,
                     size: 14,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 5),
                   Text(
-                    'Annuler',
+                    'Voir Votre Trajet',
                     style: GoogleFonts.poppins(
-                      color: Colors.white60,
-                      fontSize: 12,
+                      color: Colors.white70,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                      decorationColor: Colors.white54,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  //  TICKET DETAIL BOTTOM SHEET  (QR placeholder + full info)
-  // ══════════════════════════════════════════════════════════════════════════
-  void _showTicketDetail(Ticket ticket) {
-    showModalBottomSheet(
-      context: Get.context!,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
-        maxChildSize: 0.95,
-        minChildSize: 0.5,
-        builder: (_, scrollCtrl) => Container(
-          decoration: const BoxDecoration(
-            color: AppColors.bgPage,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SingleChildScrollView(
-            controller: scrollCtrl,
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 40),
-            child: Column(
-              children: [
-                // Handle
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Header
-                Text(
-                  'Billet électronique',
-                  style: GoogleFonts.poppins(
-                    color: AppColors.blue1,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  ticket.ticketCode,
-                  style: GoogleFonts.poppins(
-                    color: AppColors.blue3,
-                    fontSize: 12,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // QR code placeholder
-                Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: AppColors.bluePale, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.blue1.withOpacity(0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.qr_code_2_rounded,
-                        color: AppColors.blue1,
-                        size: 100,
-                      ),
-                      Text(
-                        ticket.ticketCode,
-                        style: GoogleFonts.poppins(
-                          color: AppColors.blue3,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Info card
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFDDE6F5)),
-                  ),
-                  child: Column(
-                    children: [
-                      _detailRow2(
-                        'Trajet',
-                        '${ticket.fromStation} → ${ticket.toStation}',
-                      ),
-                      _detailRow2('Date', _fullDate(ticket.travelDate)),
-                      _detailRow2('Départ', ticket.departureTime),
-                      _detailRow2('Arrivée', ticket.arrivalTime),
-                      _detailRow2('Train', '#${ticket.trainNumber}'),
-                      _detailRow2('Ligne', ticket.trainLine),
-                      _detailRow2(
-                        'Classe',
-                        ticket.ticketClass == '1st'
-                            ? '1ère classe'
-                            : '2ème classe',
-                      ),
-                      _detailRow2('Passagers', '${ticket.passengers}'),
-                      Divider(color: Colors.grey.shade100, height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Total payé',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.blue1,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            '${ticket.price?.toStringAsFixed(3)} DT',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.green,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Return leg info if round trip
-                if (ticket.isRoundTrip && ticket.returnFromStation != null) ...[
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF3E0),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.sand.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.replay_circle_filled_rounded,
-                              color: Color(0xFFE65100),
-                              size: 15,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Trajet Retour',
-                              style: GoogleFonts.poppins(
-                                color: const Color(0xFFE65100),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        _detailRow2(
-                          'Trajet retour',
-                          '${ticket.returnFromStation} → ${ticket.returnToStation}',
-                          valueColor: const Color(0xFFE65100),
-                        ),
-                        if (ticket.returnDate != null)
-                          _detailRow2(
-                            'Date retour',
-                            _fullDate(ticket.returnDate!),
-                            valueColor: const Color(0xFFE65100),
-                          ),
-                        _detailRow2(
-                          'Départ retour',
-                          ticket.returnDepartureTime ?? '--',
-                          valueColor: const Color(0xFFE65100),
-                        ),
-                        _detailRow2(
-                          'Arrivée retour',
-                          ticket.returnArrivalTime ?? '--',
-                          valueColor: const Color(0xFFE65100),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _detailRow2(String label, String value, {Color? valueColor}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(color: AppColors.blue3, fontSize: 12),
-          ),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: GoogleFonts.poppins(
-                color: valueColor ?? AppColors.blue1,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════
-  //  CANCEL CONFIRM DIALOG
-  // ══════════════════════════════════════════════════════════════════════════
-  void _confirmCancel(Ticket ticket) {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        backgroundColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: AppColors.redBg,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(
-                  Icons.cancel_rounded,
-                  color: AppColors.red,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Annuler le billet ?',
-                style: GoogleFonts.poppins(
-                  color: AppColors.blue1,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Cette action est irréversible.\nRemboursement sous 3–5 jours ouvrés.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  color: AppColors.blue3,
-                  fontSize: 13,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.sandBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Frais d\'annulation: 10%',
-                  style: GoogleFonts.poppins(
-                    color: AppColors.sand,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Get.back(),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-                        decoration: BoxDecoration(
-                          color: AppColors.bluePale,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Garder',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.blue1,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.back();
-                        ctrl.cancelTicket(ticket);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-                        decoration: BoxDecoration(
-                          color: AppColors.red,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Annuler',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  SKELETON LOADER
+  //  SKELETON
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildSkeleton() {
     return ListView.builder(
@@ -1312,8 +977,8 @@ class MyJourneyPage extends StatelessWidget {
   // ══════════════════════════════════════════════════════════════════════════
   //  EMPTY STATE
   // ══════════════════════════════════════════════════════════════════════════
-  Widget _buildEmpty() {
-    final isActive = ctrl.selectedTab.value == 0;
+  Widget _buildEmpty(int tab) {
+    final isActive = tab == 0;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1366,7 +1031,7 @@ class MyJourneyPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.blue1.withOpacity(0.3),
+                      color: AppColors.blue1.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1459,7 +1124,7 @@ class MyJourneyPage extends StatelessWidget {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  SMALL HELPERS
+  //  HELPERS
   // ══════════════════════════════════════════════════════════════════════════
   Widget _infoChip(
     IconData icon,

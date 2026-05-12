@@ -10,7 +10,6 @@ class Admin extends User {
     required super.lastName,
     required super.email,
     required super.phone,
-    required super.password,
     required super.createdAt,
     super.isActive,
     this.role = "admin",

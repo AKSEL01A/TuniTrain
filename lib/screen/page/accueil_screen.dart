@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:tuni_train/const/colors.dart';
 import 'package:tuni_train/controller/accueil_controller.dart';
-import 'package:tuni_train/data/database_service.dart';
+import 'package:tuni_train/controller/auth_controller.dart';
 import 'package:tuni_train/models/service.dart';
 
 class AccueilPageScreen extends StatefulWidget {
@@ -61,6 +61,9 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
   // ───────────────── HEADER ─────────────────
 
   Widget _buildHeader(String dateStr) {
+    final auth = Get.find<AuthController>();
+    final user = auth.client.value;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -72,24 +75,28 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
               style: GoogleFonts.poppins(color: AppColors.blue3, fontSize: 12),
             ),
             const SizedBox(height: 4),
-            Text(
-              'Bonjour 👋',
-              style: GoogleFonts.poppins(
-                color: AppColors.blue1,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+
+            Obx(() {
+              final auth = Get.find<AuthController>();
+              final user = auth.client.value;
+
+              return Text('Bonjour ${user?.firstName ?? ""} 👋');
+            }),
           ],
         ),
+
         CircleAvatar(
           backgroundColor: AppColors.blue1,
-          child: Text('H', style: GoogleFonts.poppins(color: Colors.white)),
+          child: Text(
+            (user?.firstName.isNotEmpty == true)
+                ? user!.firstName[0].toUpperCase()
+                : "?",
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
         ),
       ],
     );
   }
-
   // ───────────────── SEARCH CARD ─────────────────
 
   Widget _buildSearchCard(String selectedDateStr, bool isToday) {
@@ -130,6 +137,39 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
                   ),
                 ),
                 onPressed: () => Get.toNamed('/searchtrain'),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.search_rounded,
+                      color: AppColors.bgPage,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Rechercher un train",
+                      style: TextStyle(
+                        color: AppColors.bgPage,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: () => Get.toNamed('/login'),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

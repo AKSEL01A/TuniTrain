@@ -15,6 +15,7 @@ class DaysData {
 
     return '${d.day} ${weekdays[d.weekday - 1]} ${d.year}';
   }
+
   static const months = [
     'Jan',
     'Fév',
@@ -250,3 +251,6 @@ class DaysData {
   ];
 }
 */
+
+
+

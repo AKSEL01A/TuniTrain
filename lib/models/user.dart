@@ -4,7 +4,6 @@ abstract class User {
   String lastName;
   String email;
   String phone;
-  String password;
   DateTime createdAt;
   bool isActive;
 
@@ -14,22 +13,30 @@ abstract class User {
     required this.lastName,
     required this.email,
     required this.phone,
-    required this.password,
     required this.createdAt,
     this.isActive = true,
   });
 
+  // =========================
+  // Methods
+  // =========================
+
   String get fullName => "$firstName $lastName";
 
-  void activate() => isActive = true;
+  void activate() {
+    isActive = true;
+  }
 
-  void deactivate() => isActive = false;
+  void deactivate() {
+    isActive = false;
+  }
 
   void updateProfile({
     String? firstName,
     String? lastName,
     String? email,
     String? phone,
+    String? imageUrl,
   }) {
     this.firstName = firstName ?? this.firstName;
     this.lastName = lastName ?? this.lastName;
@@ -44,7 +51,6 @@ abstract class User {
       "lastName": lastName,
       "email": email,
       "phone": phone,
-      "password": password,
       "createdAt": createdAt.toIso8601String(),
       "isActive": isActive,
     };

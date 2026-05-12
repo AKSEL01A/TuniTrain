@@ -174,13 +174,13 @@ class _PaymentPageState extends State<PaymentPage>
                   ),
                   decoration: BoxDecoration(
                     color: pulse
-                        ? AppColors.red.withOpacity(
-                            0.15 + _pulseCtrl.value * 0.25,
+                        ? AppColors.red.withValues(
+                            alpha: 0.15 + _pulseCtrl.value * 0.25,
                           )
-                        : Colors.white.withOpacity(0.15),
+                        : Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: _timerColor.withOpacity(0.6),
+                      color: _timerColor.withValues(alpha: 0.6),
                       width: 1.5,
                     ),
                   ),
@@ -302,7 +302,7 @@ class _PaymentPageState extends State<PaymentPage>
         border: Border.all(color: const Color(0xFFDDE6F5)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.blue1.withOpacity(0.05),
+            color: AppColors.blue1.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -484,7 +484,7 @@ class _PaymentPageState extends State<PaymentPage>
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: m.color.withOpacity(0.10),
+                    color: m.color.withValues(alpha: 0.10),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -500,7 +500,7 @@ class _PaymentPageState extends State<PaymentPage>
               height: 44,
               decoration: BoxDecoration(
                 color: selected
-                    ? m.color.withOpacity(0.15)
+                    ? m.color.withValues(alpha: 0.15)
                     : const Color(0xFFF2F5FA),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -571,7 +571,7 @@ class _PaymentPageState extends State<PaymentPage>
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: _termsAccepted
-              ? AppColors.green.withOpacity(0.4)
+              ? AppColors.green.withValues(alpha: 0.4)
               : const Color(0xFFDDE6F5),
           width: _termsAccepted ? 1.5 : 1,
         ),
@@ -689,7 +689,7 @@ class _PaymentPageState extends State<PaymentPage>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: AppColors.blue1.withOpacity(0.08),
+            color: AppColors.blue1.withValues(alpha: 0.08),
             blurRadius: 24,
             offset: const Offset(0, -6),
           ),
@@ -780,7 +780,7 @@ class _PaymentPageState extends State<PaymentPage>
                     boxShadow: _canPay
                         ? [
                             BoxShadow(
-                              color: AppColors.blue1.withOpacity(0.35),
+                              color: AppColors.blue1.withValues(alpha: 0.35),
                               blurRadius: 14,
                               offset: const Offset(0, 5),
                             ),
@@ -857,15 +857,15 @@ class _PaymentPageState extends State<PaymentPage>
   Future<void> _onPayPressed() async {
     setState(() => _paying = true);
     _timer?.cancel();
-
-    // Simulate processing delay
     await Future.delayed(const Duration(seconds: 2));
-
     if (!mounted) return;
     setState(() => _paying = false);
 
-    // Navigate to success page (create /payment_success route)
-    Get.offAllNamed('/payment_success');
+    // 🔥 Pass payment method so TicketController can save it
+    Get.offAllNamed(
+      '/payment_success',
+      arguments: {'paymentMethod': _selectedMethod},
+    );
   }
 
   // ══════════════════════════════════════════════════════════════════════════

@@ -1,29 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tuni_train/models/purchase.dart';
 
-enum TicketStatus { active, used, expired, cancelled }
-
-class Ticket extends Purchase {
-  final String firestoreId;
-
+class MyTicket {
+  final String id; // Firestore doc ID
+  final String userId;
   final String ticketCode;
-
   final String fromStation;
   final String toStation;
-
   final String departureTime;
   final String arrivalTime;
-
   final DateTime travelDate;
-
   final String trainLine;
-  final int trainNumber;
-
+  final String trainNumber;
   final String ticketClass;
   final int passengers;
-
+  final double totalPrice;
   final String paymentMethod;
-
+  final String status;
   final bool isRoundTrip;
 
   final String? returnFromStation;
@@ -32,10 +24,14 @@ class Ticket extends Purchase {
   final String? returnArrivalTime;
   final DateTime? returnDate;
 
-  TicketStatus status;
+  final String? firstName;
+  final String? lastName;
+  final String? email;
+  final String? phoneNumber;
 
-  Ticket({
-    required this.firestoreId,
+  const MyTicket({
+    required this.id,
+    required this.userId,
     required this.ticketCode,
     required this.fromStation,
     required this.toStation,
@@ -46,7 +42,7 @@ class Ticket extends Purchase {
     required this.trainNumber,
     required this.ticketClass,
     required this.passengers,
-    required double totalPrice,
+    required this.totalPrice,
     required this.paymentMethod,
     required this.status,
     required this.isRoundTrip,
@@ -55,75 +51,27 @@ class Ticket extends Purchase {
     this.returnDepartureTime,
     this.returnArrivalTime,
     this.returnDate,
-
-    // Purchase optional fields
-    int? id,
-    String? firstName,
-    String? lastName,
-    String? email,
-    String? phoneNumber,
-  }) : super(
-         id: id,
-         startDate: travelDate,
-         endDate: returnDate ?? travelDate,
-         firstName: firstName,
-         lastName: lastName,
-         email: email,
-         phoneNumber: phoneNumber,
-         price: totalPrice,
-         qrCode: ticketCode,
-       );
-
-  String toQrPayload() {
-    return '''
-ticketCode:$ticketCode
-from:$fromStation
-to:$toStation
-date:${travelDate.toIso8601String()}
-departure:$departureTime
-arrival:$arrivalTime
-class:$ticketClass
-passengers:$passengers
-price:$price
-roundTrip:$isRoundTrip
-''';
-  }
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.phoneNumber,
+  });
 
   // ─────────────────────────────
-  // FIRESTORE
+  // FROM FIRESTORE
   // ─────────────────────────────
-
-  factory Ticket.fromFirestore(DocumentSnapshot doc) {
+  factory MyTicket.fromFirestore(DocumentSnapshot doc) {
     final d = doc.data() as Map<String, dynamic>;
 
     DateTime parseDate(dynamic val) {
       if (val is Timestamp) return val.toDate();
-
-      if (val is String) {
-        return DateTime.tryParse(val) ?? DateTime.now();
-      }
-
+      if (val is String) return DateTime.tryParse(val) ?? DateTime.now();
       return DateTime.now();
     }
 
-    TicketStatus parseStatus(String s) {
-      switch (s) {
-        case 'used':
-          return TicketStatus.used;
-
-        case 'expired':
-          return TicketStatus.expired;
-
-        case 'cancelled':
-          return TicketStatus.cancelled;
-
-        default:
-          return TicketStatus.active;
-      }
-    }
-
-    return Ticket(
-      firestoreId: doc.id,
+    return MyTicket(
+      id: doc.id,
+      userId: d['userId'] ?? '',
       ticketCode: d['ticketCode'] ?? doc.id,
       fromStation: d['fromStation'] ?? '',
       toStation: d['toStation'] ?? '',
@@ -131,21 +79,18 @@ roundTrip:$isRoundTrip
       arrivalTime: d['arrivalTime'] ?? '--:--',
       travelDate: parseDate(d['travelDate']),
       trainLine: d['trainLine'] ?? '',
-      trainNumber: (d['trainNumber'] as num?)?.toInt() ?? 0,
+      trainNumber: d['trainNumber']?.toString() ?? '',
       ticketClass: d['ticketClass'] ?? '2nd',
       passengers: (d['passengers'] as num?)?.toInt() ?? 1,
       totalPrice: (d['totalPrice'] as num?)?.toDouble() ?? 0.0,
       paymentMethod: d['paymentMethod'] ?? '',
-      status: parseStatus(d['status'] ?? 'active'),
+      status: d['status'] ?? 'active',
       isRoundTrip: d['isRoundTrip'] ?? false,
-
       returnFromStation: d['returnFromStation'],
       returnToStation: d['returnToStation'],
       returnDepartureTime: d['returnDepartureTime'],
       returnArrivalTime: d['returnArrivalTime'],
-
       returnDate: d['returnDate'] != null ? parseDate(d['returnDate']) : null,
-
       firstName: d['firstName'],
       lastName: d['lastName'],
       email: d['email'],
@@ -153,56 +98,26 @@ roundTrip:$isRoundTrip
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'ticketCode': ticketCode,
-      'fromStation': fromStation,
-      'toStation': toStation,
-      'departureTime': departureTime,
-      'arrivalTime': arrivalTime,
-      'travelDate': Timestamp.fromDate(travelDate),
-      'trainLine': trainLine,
-      'trainNumber': trainNumber,
-      'ticketClass': ticketClass,
-      'passengers': passengers,
-      'totalPrice': price,
-      'paymentMethod': paymentMethod,
-      'status': status.name,
-      'isRoundTrip': isRoundTrip,
-
-      'firstName': firstName,
-      'lastName': lastName,
-      'email': email,
-      'phoneNumber': phoneNumber,
-
-      if (returnFromStation != null) 'returnFromStation': returnFromStation,
-
-      if (returnToStation != null) 'returnToStation': returnToStation,
-
-      if (returnDepartureTime != null)
-        'returnDepartureTime': returnDepartureTime,
-
-      if (returnArrivalTime != null) 'returnArrivalTime': returnArrivalTime,
-
-      if (returnDate != null) 'returnDate': Timestamp.fromDate(returnDate!),
-    };
-  }
-
   // ─────────────────────────────
-  // BUSINESS LOGIC
+  // QR PAYLOAD
   // ─────────────────────────────
-
-  @override
-  bool validate() {
-    return status == TicketStatus.active;
+  String toQrPayload() {
+    return [
+      'ticketCode:$ticketCode',
+      'from:$fromStation',
+      'to:$toStation',
+      'date:${travelDate.toIso8601String()}',
+      'departure:$departureTime',
+      'arrival:$arrivalTime',
+      'class:$ticketClass',
+      'passengers:$passengers',
+      'price:$totalPrice',
+      'roundTrip:$isRoundTrip',
+    ].join('\n');
   }
 
-  @override
-  void markAsUsed() {
-    status = TicketStatus.used;
-  }
-
-  bool get isExpired {
-    return travelDate.isBefore(DateTime.now());
-  }
+  bool get isActive => status == 'active';
+  bool get isPast => travelDate.isBefore(
+    DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
+  );
 }

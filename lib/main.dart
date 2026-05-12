@@ -3,10 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:tuni_train/controller/auth_controller.dart';
 import 'package:tuni_train/controller/home_controlle.dart';
+import 'package:tuni_train/screen/page/auth/login.dart';
+import 'package:tuni_train/screen/page/my_journey_page.dart';
 import 'package:tuni_train/screen/page/payment_page.dart';
 import 'package:tuni_train/screen/page/payment_success_page.dart';
-import 'package:tuni_train/screen/page/qr_ticket_page.dart';
 import 'package:tuni_train/screen/page/search_train.dart';
 import 'package:tuni_train/screen/page/panel_page.dart';
 
@@ -23,7 +25,7 @@ Future<void> main() async {
   await initializeDateFormatting('fr_FR', null);
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  Get.put(AuthController(), permanent: true);
   final box = GetStorage();
   final bool hasSeenOnboarding = box.read('hasSeenOnboarding') ?? false;
 
@@ -62,10 +64,15 @@ class MyApp extends StatelessWidget {
           page: () => PanelPage(),
           binding: PanelBinding(),
         ),
-        GetPage(name: '/ticket-qr', page: () => QrTicketPage()),
+        GetPage(name: '/login', page: () => LoginScreen()),
 
         GetPage(name: '/payment', page: () => const PaymentPage()),
         GetPage(name: '/payment_success', page: () => PaymentSuccessPage()),
+        GetPage(
+          name: '/my-journeys',
+          page: () => MyJourneyPage(),
+          binding: MyJourneyBinding(),
+        ),
       ],
     );
   }
