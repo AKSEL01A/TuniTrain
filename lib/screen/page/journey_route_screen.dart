@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tuni_train/const/colors.dart';
 import 'package:tuni_train/controller/journey_route_controller.dart';
 import 'package:tuni_train/models/tickets.dart';
-import 'package:tuni_train/models/train_line.dart';
 
 class JourneyRouteScreen extends StatelessWidget {
   final MyTicket ticket;

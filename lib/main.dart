@@ -11,7 +11,8 @@ import 'package:tuni_train/screen/page/payment_page.dart';
 import 'package:tuni_train/screen/page/payment_success_page.dart';
 import 'package:tuni_train/screen/page/search_train.dart';
 import 'package:tuni_train/screen/page/panel_page.dart';
-
+import 'package:tuni_train/screen/page/stations_map_page.dart';
+import 'package:tuni_train/screen/page/subscription_page.dart';
 import 'package:tuni_train/screen/widget/home_screen.dart';
 import 'package:tuni_train/screen/widget/onboarding_page.dart';
 import 'firebase_options.dart';
@@ -73,6 +74,8 @@ class MyApp extends StatelessWidget {
           page: () => MyJourneyPage(),
           binding: MyJourneyBinding(),
         ),
+        GetPage(name: '/subscription', page: () => SubscriptionPage()),
+        GetPage(name: '/TunisiaTrainData', page: () => StationsMapPage()),
       ],
     );
   }

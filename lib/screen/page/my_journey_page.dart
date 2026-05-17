@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tuni_train/const/colors.dart';
+import 'package:tuni_train/controller/my_journey_abonnement_tab.dart';
 import 'package:tuni_train/controller/my_journey_controller.dart';
 import 'package:tuni_train/models/tickets.dart';
 import 'package:tuni_train/screen/page/journey_route_screen.dart';
@@ -15,7 +16,6 @@ class MyJourneyPage extends StatelessWidget {
     permanent: false,
   );
 
-  // ── Month names (FR) ───────────────────────────────────────────────────
   static const List<String> _months = [
     '',
     'Jan',
@@ -77,7 +77,6 @@ class MyJourneyPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Top row ─────────────────────────────────────────────────
               Row(
                 children: [
                   IconButton(
@@ -119,10 +118,7 @@ class MyJourneyPage extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 18),
-
-              // ── Stats row ────────────────────────────────────────────────
               Obx(
                 () => Row(
                   children: [
@@ -201,63 +197,70 @@ class MyJourneyPage extends StatelessWidget {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  SEARCH BAR
+  //  SEARCH BAR — hidden on abonnements tab
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildSearchBar() {
-    return Container(
-      color: AppColors.blue1,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.blue1.withValues(alpha: 0.15),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.search_rounded, color: AppColors.blue3, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                onChanged: (v) => ctrl.searchQuery.value = v,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  color: const Color(0xFF1A1F36),
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Chercher par gare, code billet…',
-                  hintStyle: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: AppColors.blue3,
+    return Obx(() {
+      if (ctrl.selectedTab.value == 2) return const SizedBox.shrink();
+      return Container(
+        color: AppColors.blue1,
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.blue1.withValues(alpha: 0.15),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.search_rounded,
+                color: AppColors.blue3,
+                size: 18,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  onChanged: (v) => ctrl.searchQuery.value = v,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: const Color(0xFF1A1F36),
                   ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: InputDecoration(
+                    hintText: 'Chercher par gare, code billet…',
+                    hintStyle: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: AppColors.blue3,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
                 ),
               ),
-            ),
-            Obx(
-              () => ctrl.searchQuery.value.isNotEmpty
-                  ? GestureDetector(
-                      onTap: () => ctrl.searchQuery.value = '',
-                      child: const Icon(
-                        Icons.close_rounded,
-                        color: AppColors.blue3,
-                        size: 16,
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          ],
+              Obx(
+                () => ctrl.searchQuery.value.isNotEmpty
+                    ? GestureDetector(
+                        onTap: () => ctrl.searchQuery.value = '',
+                        child: const Icon(
+                          Icons.close_rounded,
+                          color: AppColors.blue3,
+                          size: 16,
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -268,16 +271,26 @@ class MyJourneyPage extends StatelessWidget {
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       child: Obx(
-        () => Row(
-          children: [
-            _tab(
-              index: 0,
-              label: 'Actifs & à venir',
-              icon: Icons.upcoming_rounded,
-            ),
-            const SizedBox(width: 10),
-            _tab(index: 1, label: 'Historique', icon: Icons.history_rounded),
-          ],
+        () => SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _tab(
+                index: 0,
+                label: 'Actifs & à venir',
+                icon: Icons.upcoming_rounded,
+              ),
+              const SizedBox(width: 8),
+              _tab(
+                index: 2,
+                label: 'Abonnements',
+                icon: Icons.card_membership_rounded,
+              ),
+              const SizedBox(width: 8),
+
+              _tab(index: 1, label: 'Historique', icon: Icons.history_rounded),
+            ],
+          ),
         ),
       ),
     );
@@ -293,7 +306,7 @@ class MyJourneyPage extends StatelessWidget {
       onTap: () => ctrl.selectedTab.value = index,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: selected ? AppColors.blue1 : Colors.transparent,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
@@ -309,14 +322,14 @@ class MyJourneyPage extends StatelessWidget {
             Icon(
               icon,
               color: selected ? Colors.white : AppColors.blue3,
-              size: 14,
+              size: 13,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 5),
             Text(
               label,
               style: GoogleFonts.poppins(
                 color: selected ? Colors.white : AppColors.blue3,
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -327,25 +340,28 @@ class MyJourneyPage extends StatelessWidget {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  BODY
+  //  BODY  ← THE FIX IS HERE
   // ══════════════════════════════════════════════════════════════════════════
   Widget _buildBody() {
     return Obx(() {
-      // ── Loading ──────────────────────────────────────────────────────────
+      // ── TAB 2 → Abonnements ───────────────────────────────────────────
+      if (ctrl.selectedTab.value == 2) {
+        return const MyJourneyAbonnementTab();
+      }
+
+      // ── Loading ───────────────────────────────────────────────────────
       if (ctrl.isLoading.value) return _buildSkeleton();
 
-      // ── Error ────────────────────────────────────────────────────────────
+      // ── Error ─────────────────────────────────────────────────────────
       if (ctrl.hasError.value) return _buildError();
 
-      // ── Access selectedTab & searchQuery inside Obx so it reacts ────────
       final tab = ctrl.selectedTab.value;
-      final query = ctrl.searchQuery.value;
       final tickets = ctrl.displayedTickets;
 
-      // ── Empty ────────────────────────────────────────────────────────────
+      // ── Empty ─────────────────────────────────────────────────────────
       if (tickets.isEmpty) return _buildEmpty(tab);
 
-      // ── List ─────────────────────────────────────────────────────────────
+      // ── Tickets list ──────────────────────────────────────────────────
       return RefreshIndicator(
         color: AppColors.blue1,
         onRefresh: ctrl.refresh,
@@ -431,7 +447,7 @@ class MyJourneyPage extends StatelessWidget {
         opacity: isPast ? 0.65 : 1.0,
         child: Column(
           children: [
-            // ── TOP ───────────────────────────────────────────────────────
+            // TOP
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
               child: Row(
@@ -503,13 +519,12 @@ class MyJourneyPage extends StatelessWidget {
               ),
             ),
 
-            // ── ROUTE ROW ─────────────────────────────────────────────────
+            // ROUTE ROW
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // FROM
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -536,8 +551,6 @@ class MyJourneyPage extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // CENTER
                   Column(
                     children: [
                       Container(
@@ -608,8 +621,6 @@ class MyJourneyPage extends StatelessWidget {
                       ),
                     ],
                   ),
-
-                  // TO
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -641,7 +652,7 @@ class MyJourneyPage extends StatelessWidget {
               ),
             ),
 
-            // ── RETURN LEG ────────────────────────────────────────────────
+            // RETURN LEG
             if (ticket.isRoundTrip && ticket.returnFromStation != null) ...[
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
@@ -664,7 +675,8 @@ class MyJourneyPage extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Retour: ${ticket.returnDepartureTime ?? '--'} · ${ticket.returnFromStation} → ${ticket.returnToStation}',
+                          'Retour: ${ticket.returnDepartureTime ?? '--'} · '
+                          '${ticket.returnFromStation} → ${ticket.returnToStation}',
                           style: GoogleFonts.poppins(
                             color: const Color(0xFFE65100),
                             fontSize: 11,
@@ -690,7 +702,7 @@ class MyJourneyPage extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            // ── DASHED DIVIDER ────────────────────────────────────────────
+            // DASHED DIVIDER
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: LayoutBuilder(
@@ -714,7 +726,7 @@ class MyJourneyPage extends StatelessWidget {
               ),
             ),
 
-            // ── INFO CHIPS ────────────────────────────────────────────────
+            // INFO CHIPS
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
               child: Row(
@@ -760,8 +772,6 @@ class MyJourneyPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 12),
-
-            // ── BOTTOM CTA ────────────────────────────────────────────────
             _buildCardCta(ticket, isPast),
           ],
         ),
@@ -808,83 +818,71 @@ class MyJourneyPage extends StatelessWidget {
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(22)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      child: GestureDetector(
-        onTap: () => Get.to(
-          () => QrTicketScreen(directTicket: ticket),
-          transition: Transition.downToUp,
-          duration: const Duration(milliseconds: 350),
-        ),
-        child: Row(
-          children: [
-            // ── "Voir le billet" (QR) button ─────────────────────────────────
-            Expanded(
-              child: GestureDetector(
-                onTap: () => Get.to(
-                  () => QrTicketScreen(directTicket: ticket),
-                  transition: Transition.downToUp,
-                  duration: const Duration(milliseconds: 350),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.qr_code_rounded,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Voir le billet',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ── Vertical divider ─────────────────────────────────────────────
-            Container(
-              width: 1,
-              height: 22,
-              color: Colors.white.withValues(alpha: 0.25),
-              margin: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-
-            // ── "Voir Votre Trajet" text link ─────────────────────────────────
-            GestureDetector(
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
               onTap: () => Get.to(
-                () => JourneyRouteScreen(ticket: ticket),
-                transition: Transition.rightToLeft,
+                () => QrTicketScreen(directTicket: ticket),
+                transition: Transition.downToUp,
                 duration: const Duration(milliseconds: 350),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(
-                    Icons.route_rounded,
-                    color: Colors.white70,
-                    size: 14,
+                    Icons.qr_code_rounded,
+                    color: Colors.white,
+                    size: 16,
                   ),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 6),
                   Text(
-                    'Voir Votre Trajet',
+                    'Voir le billet',
                     style: GoogleFonts.poppins(
-                      color: Colors.white70,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Colors.white54,
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          Container(
+            width: 1,
+            height: 22,
+            color: Colors.white.withValues(alpha: 0.25),
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+          ),
+          GestureDetector(
+            onTap: () => Get.to(
+              () => JourneyRouteScreen(ticket: ticket),
+              transition: Transition.rightToLeft,
+              duration: const Duration(milliseconds: 350),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.route_rounded,
+                  color: Colors.white70,
+                  size: 14,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Voir Votre Trajet',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white70,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                    decorationColor: Colors.white54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -896,7 +894,7 @@ class MyJourneyPage extends StatelessWidget {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
       itemCount: 4,
-      itemBuilder: (_, __) => _skeletonCard(),
+      itemBuilder: (_, _) => _skeletonCard(),
     );
   }
 
@@ -1207,7 +1205,4 @@ class MyJourneyPage extends StatelessWidget {
 
   String _shortDate(DateTime d) =>
       '${_days[d.weekday]}. ${d.day} ${_months[d.month]}';
-
-  String _fullDate(DateTime d) =>
-      '${_days[d.weekday]} ${d.day} ${_months[d.month]} ${d.year}';
 }

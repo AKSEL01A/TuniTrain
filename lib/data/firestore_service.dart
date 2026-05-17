@@ -219,7 +219,6 @@ class FirestoreService {
           selectedDate.month == now.month &&
           selectedDate.day == now.day;
 
-      // ── Pre-calculate the price ONCE for this from→to pair ─────────────
       final double journeyPrice = calculatePrice(
         fromStationName,
         toStationName,
@@ -235,19 +234,28 @@ class FirestoreService {
         TrainTime? toStop;
 
         for (final s in stops) {
-          if (_stationMatches(s, fromStationId, fromStationName)) {
-            fromStop = s;
-          }
-          if (_stationMatches(s, toStationId, toStationName)) {
-            toStop = s;
-          }
+          if (_stationMatches(s, fromStationId, fromStationName)) fromStop = s;
+          if (_stationMatches(s, toStationId, toStationName)) toStop = s;
         }
 
         if (fromStop == null || toStop == null) continue;
-        if (fromStop.stopOrder >= toStop.stopOrder) continue;
 
-        final dep = fromStop.departureTime;
-        final arr = toStop.arrivalTime;
+        // ✅ KEY FIX: allow both directions
+        // fromStopOrder < toStopOrder = forward direction (Sousse → Mahdia)
+        // fromStopOrder > toStopOrder = reverse direction (Mahdia → Sousse)
+        // fromStopOrder == toStopOrder = same station, skip
+        if (fromStop.stopOrder == toStop.stopOrder) continue;
+
+        // ✅ For reverse direction, we need a train that runs in THAT direction.
+        // Since your data has all trains running Sousse→Mahdia (stopOrder 1→32),
+        // a "reverse" search means fromStop.stopOrder > toStop.stopOrder.
+        // We swap the logic: departure time comes from fromStop, arrival from toStop.
+
+        // For reverse trips, the train physically departs from the higher stopOrder
+        // station earlier in its run — but the passenger boards at fromStop.
+        // The departure time for the passenger is fromStop.departureTime.
+        final dep = fromStop.departureTime ?? fromStop.arrivalTime;
+        final arr = toStop.arrivalTime ?? toStop.departureTime;
 
         if (dep == null || arr == null) continue;
 
@@ -264,7 +272,7 @@ class FirestoreService {
             arrivalTime: arr,
             fromStopOrder: fromStop.stopOrder,
             toStopOrder: toStop.stopOrder,
-            ticketPrice: journeyPrice, // ✅ Real zone-based price
+            ticketPrice: journeyPrice,
           ),
         );
       }

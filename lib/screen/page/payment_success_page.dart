@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:tuni_train/const/colors.dart';
 import 'package:tuni_train/controller/panel_controller.dart';
 import 'package:tuni_train/controller/ticket_controller.dart';
@@ -137,7 +136,7 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
           // Confetti layer
           AnimatedBuilder(
             animation: _confettiCtrl,
-            builder: (_, __) => CustomPaint(
+            builder: (_, _) => CustomPaint(
               painter: _ConfettiPainter(
                 particles: _particles,
                 progress: _confettiCtrl.value,
@@ -214,7 +213,7 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
   Widget _buildSuccessCircle() {
     return AnimatedBuilder(
       animation: Listenable.merge([_scaleAnim, _pulseCtrl, _checkAnim]),
-      builder: (_, __) => Transform.scale(
+      builder: (_, _) => Transform.scale(
         scale: _scaleAnim.value,
         child: SizedBox(
           width: 140,

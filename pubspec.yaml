@@ -46,6 +46,12 @@ dependencies:
   get_storage: ^2.1.1
   collection: ^1.19.1
   qr_flutter: ^4.1.0
+  flutter_map: ^8.3.0
+  latlong2: ^0.9.1
+  flutter_map_cancellable_tile_provider: ^3.1.1
+  geolocator: ^14.0.2
+  image_picker: ^1.2.2
+  firebase_storage: ^13.4.1
   
 dev_dependencies:
   flutter_test:
@@ -68,3 +74,4 @@ flutter:
   assets:
     - assets/images/icon.png
     - assets/videos/OnBV.mp4
+    - assets/geojson/export.geojson

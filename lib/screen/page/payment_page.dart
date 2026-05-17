@@ -165,7 +165,7 @@ class _PaymentPageState extends State<PaymentPage>
             padding: const EdgeInsets.only(right: 12),
             child: AnimatedBuilder(
               animation: _pulseCtrl,
-              builder: (_, __) {
+              builder: (_, _) {
                 final pulse = _remainingSeconds <= 60;
                 return Container(
                   padding: const EdgeInsets.symmetric(

@@ -1,0 +1,1788 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-05-15T22:17:24Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/838818861",
+        "electrified": "contact_line",
+        "frequency": "50",
+        "gauge": "1000",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "passenger_lines": "2",
+        "railway": "rail",
+        "usage": "main",
+        "voltage": "25000"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            10.8704031,
+            35.6711181
+          ],
+          [
+            10.8718073,
+            35.6704905
+          ],
+          [
+            10.8731212,
+            35.6699401
+          ],
+          [
+            10.8737042,
+            35.6697235
+          ],
+          [
+            10.8741673,
+            35.6695604
+          ],
+          [
+            10.8746649,
+            35.6694394
+          ],
+          [
+            10.8751356,
+            35.6693697
+          ],
+          [
+            10.8756186,
+            35.6693155
+          ],
+          [
+            10.8761654,
+            35.6693147
+          ],
+          [
+            10.8767988,
+            35.6693571
+          ],
+          [
+            10.8773661,
+            35.6694508
+          ],
+          [
+            10.8782679,
+            35.6696701
+          ],
+          [
+            10.8795553,
+            35.6700178
+          ],
+          [
+            10.8801238,
+            35.6701483
+          ],
+          [
+            10.8807577,
+            35.6702551
+          ],
+          [
+            10.8813843,
+            35.6703127
+          ],
+          [
+            10.8818954,
+            35.6703047
+          ],
+          [
+            10.8824519,
+            35.6702639
+          ],
+          [
+            10.8827348,
+            35.6702239
+          ],
+          [
+            10.8831992,
+            35.670124
+          ],
+          [
+            10.8836185,
+            35.6699982
+          ],
+          [
+            10.884127,
+            35.6698216
+          ],
+          [
+            10.8846213,
+            35.6695942
+          ],
+          [
+            10.8850855,
+            35.6693225
+          ],
+          [
+            10.8855373,
+            35.6689889
+          ],
+          [
+            10.8858268,
+            35.66874
+          ],
+          [
+            10.8861862,
+            35.6683864
+          ],
+          [
+            10.8867421,
+            35.6677779
+          ],
+          [
+            10.8873406,
+            35.6671051
+          ],
+          [
+            10.8876586,
+            35.6667204
+          ],
+          [
+            10.8879456,
+            35.6663865
+          ],
+          [
+            10.8882468,
+            35.6660401
+          ],
+          [
+            10.8883742,
+            35.6658936
+          ],
+          [
+            10.8888208,
+            35.6653888
+          ],
+          [
+            10.8890425,
+            35.6651185
+          ],
+          [
+            10.8894144,
+            35.6646804
+          ],
+          [
+            10.8899453,
+            35.664074
+          ],
+          [
+            10.890584,
+            35.6633384
+          ],
+          [
+            10.8906281,
+            35.6632876
+          ],
+          [
+            10.8911979,
+            35.6626314
+          ],
+          [
+            10.8918175,
+            35.6618948
+          ],
+          [
+            10.8923781,
+            35.6611146
+          ],
+          [
+            10.893096,
+            35.6598141
+          ],
+          [
+            10.893383,
+            35.6592777
+          ],
+          [
+            10.8936924,
+            35.6587222
+          ],
+          [
+            10.8939626,
+            35.6581862
+          ],
+          [
+            10.8942637,
+            35.6577255
+          ],
+          [
+            10.8946226,
+            35.6572367
+          ],
+          [
+            10.8949452,
+            35.6568344
+          ],
+          [
+            10.89595,
+            35.6557338
+          ],
+          [
+            10.8967147,
+            35.6549221
+          ],
+          [
+            10.8974312,
+            35.6541345
+          ],
+          [
+            10.8977124,
+            35.6538029
+          ],
+          [
+            10.8980065,
+            35.6534024
+          ],
+          [
+            10.8982346,
+            35.6530218
+          ],
+          [
+            10.8984264,
+            35.6526148
+          ],
+          [
+            10.8985918,
+            35.652142
+          ],
+          [
+            10.8986642,
+            35.6518002
+          ],
+          [
+            10.8987115,
+            35.6513601
+          ],
+          [
+            10.8987846,
+            35.6501749
+          ],
+          [
+            10.8988032,
+            35.6499086
+          ],
+          [
+            10.898861,
+            35.6494331
+          ],
+          [
+            10.8989381,
+            35.6491028
+          ],
+          [
+            10.8990487,
+            35.6487598
+          ],
+          [
+            10.8991876,
+            35.648411
+          ],
+          [
+            10.8992389,
+            35.6483087
+          ],
+          [
+            10.8994652,
+            35.6478528
+          ],
+          [
+            10.8999143,
+            35.6470023
+          ],
+          [
+            10.9003181,
+            35.6462676
+          ],
+          [
+            10.9007809,
+            35.6454061
+          ],
+          [
+            10.9017385,
+            35.6436529
+          ],
+          [
+            10.902752,
+            35.6417253
+          ],
+          [
+            10.9031368,
+            35.641086
+          ],
+          [
+            10.9033841,
+            35.6407312
+          ],
+          [
+            10.903691,
+            35.6403655
+          ],
+          [
+            10.9039765,
+            35.6400493
+          ],
+          [
+            10.9042311,
+            35.6398108
+          ],
+          [
+            10.9046859,
+            35.6394399
+          ],
+          [
+            10.9050972,
+            35.639142
+          ],
+          [
+            10.9069641,
+            35.6379611
+          ],
+          [
+            10.9075244,
+            35.6376132
+          ],
+          [
+            10.9081676,
+            35.6371657
+          ],
+          [
+            10.9084451,
+            35.6369064
+          ],
+          [
+            10.9087049,
+            35.6366135
+          ],
+          [
+            10.9090099,
+            35.6362213
+          ],
+          [
+            10.9092646,
+            35.6358236
+          ],
+          [
+            10.910071,
+            35.6344757
+          ],
+          [
+            10.9103536,
+            35.6340556
+          ],
+          [
+            10.9106155,
+            35.6336768
+          ],
+          [
+            10.9109344,
+            35.6333492
+          ],
+          [
+            10.9113234,
+            35.6330158
+          ],
+          [
+            10.9114939,
+            35.6329117
+          ],
+          [
+            10.9117146,
+            35.6327563
+          ],
+          [
+            10.9119577,
+            35.6326239
+          ],
+          [
+            10.9121942,
+            35.632506
+          ],
+          [
+            10.9125311,
+            35.6323561
+          ],
+          [
+            10.9127535,
+            35.6322663
+          ],
+          [
+            10.9130356,
+            35.6321751
+          ],
+          [
+            10.9135072,
+            35.6320317
+          ]
+        ]
+      },
+      "id": "way/838818861"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/834898317",
+        "gauge": "1000",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "railway": "rail",
+        "usage": "main"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            10.8703881,
+            35.6710839
+          ],
+          [
+            10.871763,
+            35.6704723
+          ],
+          [
+            10.8731059,
+            35.6699143
+          ],
+          [
+            10.8736644,
+            35.6696966
+          ],
+          [
+            10.8741431,
+            35.6695394
+          ],
+          [
+            10.8746577,
+            35.6694066
+          ],
+          [
+            10.8751097,
+            35.6693362
+          ],
+          [
+            10.875612,
+            35.6692858
+          ],
+          [
+            10.8761685,
+            35.6692856
+          ],
+          [
+            10.8768044,
+            35.6693318
+          ],
+          [
+            10.8773517,
+            35.6694201
+          ],
+          [
+            10.8782795,
+            35.6696262
+          ],
+          [
+            10.8795691,
+            35.6699911
+          ],
+          [
+            10.8801308,
+            35.6701162
+          ],
+          [
+            10.8807643,
+            35.670225
+          ],
+          [
+            10.8813861,
+            35.6702823
+          ],
+          [
+            10.8818938,
+            35.6702729
+          ],
+          [
+            10.8824497,
+            35.6702331
+          ],
+          [
+            10.8827333,
+            35.6701893
+          ],
+          [
+            10.8831854,
+            35.6700896
+          ],
+          [
+            10.8836177,
+            35.6699668
+          ],
+          [
+            10.8841063,
+            35.6697931
+          ],
+          [
+            10.8846306,
+            35.6695438
+          ],
+          [
+            10.8850653,
+            35.6692916
+          ],
+          [
+            10.8854952,
+            35.6689808
+          ],
+          [
+            10.8858107,
+            35.6687083
+          ],
+          [
+            10.8861647,
+            35.6683592
+          ],
+          [
+            10.8867106,
+            35.6677583
+          ],
+          [
+            10.8868117,
+            35.6676396
+          ],
+          [
+            10.8869692,
+            35.6674625
+          ],
+          [
+            10.887307,
+            35.6670668
+          ],
+          [
+            10.8879102,
+            35.6663662
+          ],
+          [
+            10.8880503,
+            35.6662035
+          ],
+          [
+            10.8883213,
+            35.6658887
+          ],
+          [
+            10.8887846,
+            35.6653717
+          ],
+          [
+            10.8889865,
+            35.665128
+          ],
+          [
+            10.8893806,
+            35.6646652
+          ],
+          [
+            10.8899299,
+            35.6640375
+          ],
+          [
+            10.890577,
+            35.6633069
+          ],
+          [
+            10.8906251,
+            35.6632516
+          ],
+          [
+            10.8911711,
+            35.6626248
+          ],
+          [
+            10.8917677,
+            35.6618944
+          ],
+          [
+            10.8923465,
+            35.6611006
+          ],
+          [
+            10.8930488,
+            35.6598297
+          ],
+          [
+            10.8933421,
+            35.659272
+          ],
+          [
+            10.8936598,
+            35.6587152
+          ],
+          [
+            10.8939177,
+            35.6581768
+          ],
+          [
+            10.8942246,
+            35.6577037
+          ],
+          [
+            10.8945803,
+            35.6572327
+          ],
+          [
+            10.8947528,
+            35.6570138
+          ],
+          [
+            10.8949397,
+            35.6567949
+          ],
+          [
+            10.8959483,
+            35.6556812
+          ],
+          [
+            10.8969301,
+            35.6546159
+          ],
+          [
+            10.8970923,
+            35.6544574
+          ],
+          [
+            10.8973954,
+            35.6541108
+          ],
+          [
+            10.8976857,
+            35.6537692
+          ],
+          [
+            10.8979594,
+            35.6534096
+          ],
+          [
+            10.8980204,
+            35.6533224
+          ],
+          [
+            10.8981949,
+            35.6530271
+          ],
+          [
+            10.8983893,
+            35.6525971
+          ],
+          [
+            10.8985488,
+            35.6521245
+          ],
+          [
+            10.8986271,
+            35.6518074
+          ],
+          [
+            10.8986661,
+            35.6513637
+          ],
+          [
+            10.8986799,
+            35.6511376
+          ],
+          [
+            10.8986998,
+            35.6509542
+          ],
+          [
+            10.8987436,
+            35.6501715
+          ],
+          [
+            10.8987689,
+            35.6498735
+          ],
+          [
+            10.8988163,
+            35.6494139
+          ],
+          [
+            10.8988927,
+            35.6490946
+          ],
+          [
+            10.8990104,
+            35.6487364
+          ],
+          [
+            10.8991395,
+            35.6484186
+          ],
+          [
+            10.8991986,
+            35.6482899
+          ],
+          [
+            10.8994335,
+            35.6478256
+          ],
+          [
+            10.8998745,
+            35.6469942
+          ],
+          [
+            10.9002738,
+            35.6462544
+          ],
+          [
+            10.9007496,
+            35.6453904
+          ],
+          [
+            10.9016931,
+            35.6436332
+          ],
+          [
+            10.9027281,
+            35.6416991
+          ],
+          [
+            10.9031153,
+            35.6410569
+          ],
+          [
+            10.9033669,
+            35.6406991
+          ],
+          [
+            10.9036674,
+            35.6403358
+          ],
+          [
+            10.9039655,
+            35.6400213
+          ],
+          [
+            10.9042504,
+            35.6397587
+          ],
+          [
+            10.904654,
+            35.6394179
+          ],
+          [
+            10.905078,
+            35.6391098
+          ],
+          [
+            10.906945,
+            35.6379327
+          ],
+          [
+            10.9074937,
+            35.6375887
+          ],
+          [
+            10.9081298,
+            35.6371484
+          ],
+          [
+            10.9084157,
+            35.6368755
+          ],
+          [
+            10.9086681,
+            35.6365978
+          ],
+          [
+            10.9089735,
+            35.6362033
+          ],
+          [
+            10.9092325,
+            35.6357954
+          ],
+          [
+            10.9100459,
+            35.6344476
+          ],
+          [
+            10.9103243,
+            35.6340315
+          ],
+          [
+            10.9105905,
+            35.6336528
+          ],
+          [
+            10.9108913,
+            35.6333227
+          ],
+          [
+            10.9112559,
+            35.6329986
+          ],
+          [
+            10.9115625,
+            35.6327759
+          ],
+          [
+            10.9118438,
+            35.6325944
+          ],
+          [
+            10.9121397,
+            35.6324287
+          ],
+          [
+            10.9126225,
+            35.6322044
+          ],
+          [
+            10.9130571,
+            35.6320437
+          ],
+          [
+            10.9136348,
+            35.6318586
+          ],
+          [
+            10.9149959,
+            35.6314458
+          ],
+          [
+            10.9158706,
+            35.6311775
+          ],
+          [
+            10.9180718,
+            35.6305021
+          ],
+          [
+            10.9186355,
+            35.6303309
+          ],
+          [
+            10.9192425,
+            35.6301623
+          ],
+          [
+            10.9196406,
+            35.630073
+          ],
+          [
+            10.9200149,
+            35.6300077
+          ],
+          [
+            10.9203318,
+            35.6299672
+          ],
+          [
+            10.9206698,
+            35.6299498
+          ],
+          [
+            10.9210497,
+            35.6299451
+          ],
+          [
+            10.9214268,
+            35.6299608
+          ],
+          [
+            10.9222729,
+            35.630037
+          ],
+          [
+            10.9242559,
+            35.6302562
+          ]
+        ]
+      },
+      "id": "way/834898317"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/558822525",
+        "addr:city": "سوسة",
+        "name": "سوسة باب الجديد",
+        "name:ar": "سوسة باب الجديد",
+        "name:en": "Sousse Bab Djedid",
+        "name:fr": "Sousse Bab Djedid",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "231A"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.6415016,
+          35.8229148
+        ]
+      },
+      "id": "node/558822525"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003736242",
+        "name": "سوسة محمد الخامس",
+        "name:ar": "سوسة محمد الخامس",
+        "name:en": "Sousse Mohamed V",
+        "name:fr": "Sousse Mohamed V",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "232B"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.6433526,
+          35.8162829
+        ]
+      },
+      "id": "node/2003736242"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7829854810",
+        "name": "سوسة الجنوبية",
+        "name:ar": "سوسة الجنوبية",
+        "name:en": "Sousse Sud",
+        "name:fr": "Sousse Sud",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "233C",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.6499057,
+          35.8001927
+        ]
+      },
+      "id": "node/7829854810"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003736249",
+        "name": "سوسة المنطقة الصناعية سيدي عبد الحميد",
+        "name:ar": "سوسة المنطقة الصناعية سيدي عبد الحميد",
+        "name:en": "Sousse Zone Industrielle",
+        "name:fr": "Sousse Zone Industrielle Sidi Abdelhamid",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "234D"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.6686033,
+          35.7821002
+        ]
+      },
+      "id": "node/2003736249"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003736244",
+        "name": "الساحلين سبخة",
+        "name:ar": "الساحلين سبخة",
+        "name:en": "Sahline Sebkha",
+        "name:fr": "Sahline Sebkha",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "236F",
+        "wikidata": "Q19753149",
+        "wikipedia": "en:Sahline Sebkha"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.7171572,
+          35.7574586
+        ]
+      },
+      "id": "node/2003736244"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003736247",
+        "name": "الساحلين",
+        "name:ar": "الساحلين",
+        "name:en": "Sahline Ville",
+        "name:fr": "Sahline Ville",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "235E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.70312,
+          35.7591436
+        ]
+      },
+      "id": "node/2003736247"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003736241",
+        "name": "نزل المنستير",
+        "name:ar": "نزل المنستير",
+        "name:en": "Les Hôtels",
+        "name:fr": "Les Hôtels Monastir",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "239J",
+        "wheelchair": "no",
+        "wikidata": "Q19753271",
+        "wikipedia": "ar:محطة فنادق المنستير"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.7448732,
+          35.7601011
+        ]
+      },
+      "id": "node/2003736241"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003736239",
+        "addr:city": "المنستير",
+        "name": "مطار المنستير",
+        "name:ar": "مطار المنستير",
+        "name:en": "Airport",
+        "name:fr": "Aéroport Monastir",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "237G",
+        "train": "yes",
+        "wikidata": "Q19753278",
+        "wikipedia": "en:Skanes-Monastir airport railway station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.7545542,
+          35.7626211
+        ]
+      },
+      "id": "node/2003736239"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817978",
+        "gtfs_id": "181",
+        "name": "المنستير الكلية",
+        "name:ar": "المنستير الكلية",
+        "name:en": "Faculté 1",
+        "name:fr": "Faculté 1",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "1;3;36;51",
+        "stop_id": "240K",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8070346,
+          35.7593931
+        ]
+      },
+      "id": "node/5227817978"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7829749519",
+        "name": "المنستير",
+        "name:ar": "المنستير",
+        "name:en": "Monastir",
+        "name:fr": "Monastir",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "238H",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8261051,
+          35.770851
+        ]
+      },
+      "id": "node/7829749519"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817957",
+        "gtfs_id": "170",
+        "name": "المنستير الكلية 2",
+        "name:ar": "المنستير الكلية 2",
+        "name:en": "Faculté 2",
+        "name:fr": "Faculté 2",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8091677,
+          35.7608002
+        ]
+      },
+      "id": "node/5227817957"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5234855760",
+        "gtfs_id": "169",
+        "name": "المنستير المنطقة الصناعية",
+        "name:ar": "المنستير المنطقة الصناعية",
+        "name:en": "Monastir Zone Industrielle",
+        "name:fr": "Monastir Zone Industrielle",
+        "operator": "Sociéte Nationale des chemins de fer tunisien",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "241L",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8203432,
+          35.7397019
+        ]
+      },
+      "id": "node/5234855760"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817945",
+        "gtfs_id": "168",
+        "name": "الفرينة",
+        "name:ar": "الفرينة",
+        "name:en": "Frina",
+        "name:fr": "Frina",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8126671,
+          35.7306263
+        ]
+      },
+      "id": "node/5227817945"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817944",
+        "gtfs_id": "167",
+        "name": "خنيس - بنبلة",
+        "name:ar": "خنيس - بنبلة",
+        "name:en": "Khenis - Bembla",
+        "name:fr": "Khenis - Bembla",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "1;36;51",
+        "stop_id": "242M",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8125242,
+          35.708942
+        ]
+      },
+      "id": "node/5227817944"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003739332",
+        "name": "قصيبة المديوني - بنان",
+        "name:ar": "قصيبة المديوني - بنان",
+        "name:en": "Ksibet El Mediouni",
+        "name:fr": "Ksibet El Mediouni / Bennane",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "243N",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8426835,
+          35.6799171
+        ]
+      },
+      "id": "node/2003739332"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817942",
+        "gtfs_id": "165",
+        "name": "بوحجر",
+        "name:ar": "بوحجر",
+        "name:en": "Bouhjar",
+        "name:fr": "Bouhjar",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "1;36;51",
+        "stop_id": "244P",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8678348,
+          35.672244
+        ]
+      },
+      "id": "node/5227817942"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1359492749",
+        "addr:city": "لمطة",
+        "gtfs_id": "245R",
+        "name": "لمطة",
+        "name:ar": "لمطة",
+        "name:en": "Lamta",
+        "name:fr": "Lamta",
+        "ntd_id": "8014",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "L22",
+        "stop_id": "245R"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8825112,
+          35.6701564
+        ]
+      },
+      "id": "node/1359492749"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sayada",
+        "name:ar": "صيادة",
+        "name:en": "Sayada",
+        "name:fr": "Sayada",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "NEW_SAYADA"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.888306,
+          35.666072
+        ]
+      },
+      "id": "node/NEW_SAYADA"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1359426402",
+        "gtfs_id": "247T",
+        "name": "قصر هلال المنطقة الصناعية",
+        "name:ar": "قصر هلال المنطقة الصناعية",
+        "name:en": "Ksar Hellal Zone Industrielle",
+        "name:fr": "Ksar Hellal Zone Industrielle",
+        "ntd_id": "4057",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "L22",
+        "stop_id": "247T",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.8986568,
+          35.6517434
+        ]
+      },
+      "id": "node/1359426402"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1359492705",
+        "addr:city": "قصر هلال",
+        "gtfs_id": "248W",
+        "name": "قصر هلال",
+        "name:ar": "قصر هلال",
+        "name:en": "Ksar Helal",
+        "name:fr": "Ksar Hellal",
+        "ntd_id": "8014",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "L22",
+        "stop_id": "248W"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.9010237,
+          35.6449135
+        ]
+      },
+      "id": "node/1359492705"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1359426422",
+        "addr:city": "المكنين",
+        "addr:place": "قريبع",
+        "alt_name:ar": "مكنين قريبع",
+        "gtfs_id": "249X",
+        "name": "مكنين قريبع",
+        "name:ar": "مكنين قريبع",
+        "name:en": "Moknine Gribaa",
+        "name:fr": "Moknine Gribaa",
+        "ntd_id": "4057",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "L22",
+        "stop_id": "249X"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.9069929,
+          35.6379139
+        ]
+      },
+      "id": "node/1359426422"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003737884",
+        "addr:city": "المكنين",
+        "name": "المكنين",
+        "name:ar": "المكنين",
+        "name:en": "Moknine",
+        "name:fr": "Moknine",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "260J"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.9157185,
+          35.6312384
+        ]
+      },
+      "id": "node/2003737884"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Moknine Zone Industrielle",
+        "name:ar": "المكنين المنطقة الصناعية",
+        "name:en": "Moknine Zone Industrielle",
+        "name:fr": "Moknine Zone Industrielle",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "NEW_MOKNINE_ZI"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.931482,
+          35.630783
+        ]
+      },
+      "id": "node/NEW_MOKNINE_ZI"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1359426414",
+        "addr:city": "طبلبة",
+        "gtfs_id": "270X",
+        "name": "طبلبة المنطقة الصناعية",
+        "name:ar": "طبلبة المنطقة الصناعية",
+        "name:en": "Teboulba Zone Industrielle",
+        "name:fr": "Teboulba Zone Industrielle",
+        "ntd_id": "4057",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "halt",
+        "railway": "halt",
+        "route_ref": "L22"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.9435046,
+          35.633655
+        ]
+      },
+      "id": "node/1359426414"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5234855738",
+        "gtfs_id": "157",
+        "name": "طبلبة",
+        "name:ar": "طبلبة",
+        "name:en": "Teboulba",
+        "name:fr": "Teboulba",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "halt",
+        "railway": "halt",
+        "route_ref": "1;16;51",
+        "stop_id": "261K",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.9612288,
+          35.6378506
+        ]
+      },
+      "id": "node/5234855738"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817923",
+        "gtfs_id": "156",
+        "name": "البقالطة",
+        "name:ar": "البقالطة",
+        "name:en": "Bekalta",
+        "name:fr": "Bekalta",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "1;16;51",
+        "stop_id": "262L",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.9895536,
+          35.6150597
+        ]
+      },
+      "id": "node/5227817923"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817921",
+        "gtfs_id": "154",
+        "name": "بغدادي",
+        "name:ar": "بغدادي",
+        "name:en": "Baghdadi",
+        "name:fr": "Baghdadi",
+        "name:it": "Baghdadi",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "halt",
+        "railway": "halt",
+        "route_ref": "1",
+        "stop_id": "264N",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.0183903,
+          35.569537
+        ]
+      },
+      "id": "node/5227817921"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817820",
+        "gtfs_id": "153",
+        "name": "المهدية المنطقة السياحية",
+        "name:ar": "المهدية المنطقة السياحية",
+        "name:en": "Mahdia Zone Touristique",
+        "name:fr": "Mahdia Zone Touristique",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "1;36;51",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.0274296,
+          35.536856
+        ]
+      },
+      "id": "node/5227817820"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817819",
+        "gtfs_id": "152",
+        "name": "سيدي مسعود",
+        "name:ar": "سيدي مسعود",
+        "name:en": "Sidi Masaoud",
+        "name:fr": "Sidi Masaoud",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "halt",
+        "railway": "halt",
+        "route_ref": "1",
+        "stop_id": "271Y",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.0273412,
+          35.5211332
+        ]
+      },
+      "id": "node/5227817819"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817818",
+        "gtfs_id": "151",
+        "name": "برج عريف",
+        "name:ar": "برج عريف",
+        "name:en": "Borj Arif",
+        "name:fr": "Borj Arif",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "halt",
+        "railway": "halt",
+        "route_ref": "1",
+        "stop_id": "266R",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.0303221,
+          35.5061583
+        ]
+      },
+      "id": "node/5227817818"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5227817817",
+        "gtfs_id": "150",
+        "name": "الزهراء المهدية",
+        "name:ar": "الزهراء المهدية",
+        "name:en": "Ezzahra",
+        "name:fr": "Ezzahra",
+        "operator": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:website": "http://www.sncft.com.tn/Ar/",
+        "operator:wikidata": "Q2297197",
+        "operator:wikipedia": "ar:الشركة الوطنية للسكك الحديدية التونسية",
+        "operator:wikipedia:ar": "الشركة الوطنية للسكك الحديدية التونسية",
+        "public_transport": "station",
+        "railway": "station",
+        "route_ref": "1",
+        "stop_id": "268T",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.0482466,
+          35.5000219
+        ]
+      },
+      "id": "node/5227817817"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7829479390",
+        "name": "المهدية",
+        "name:ar": "المهدية",
+        "name:en": "Mahdia",
+        "name:fr": "Mahdia",
+        "name:it": "Mahdia",
+        "public_transport": "station",
+        "railway": "station",
+        "stop_id": "267S",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.0642185,
+          35.5007123
+        ]
+      },
+      "id": "node/7829479390"
+    }
+  ]
+}

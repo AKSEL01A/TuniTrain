@@ -50,6 +50,7 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
               _buildSectionTitle('Services à bord'),
               const SizedBox(height: 10),
               _buildServices(),
+
               const SizedBox(height: 20),
             ],
           ),
@@ -169,7 +170,7 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                onPressed: () => Get.toNamed('/login'),
+                onPressed: () => Get.toNamed('/TunisiaTrainData'),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -180,7 +181,40 @@ class _AccueilPageScreenState extends State<AccueilPageScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "Rechercher un train",
+                      "Voir Les Stations",
+                      style: TextStyle(
+                        color: AppColors.bgPage,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.blue2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: () => Get.toNamed('/subscription'),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.perm_identity_outlined,
+                      color: AppColors.bgPage,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "abonnement",
                       style: TextStyle(
                         color: AppColors.bgPage,
                         fontWeight: FontWeight.w600,
