@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tuni_train/data/country.dart';
-import 'package:tuni_train/controller/signup_controller.dart';
+import 'package:tuni_train/controller/auth/signup_controller.dart';
 
 // ─── Register Page ────────────────────────────────────────────────
 class RegisterPage extends StatelessWidget {

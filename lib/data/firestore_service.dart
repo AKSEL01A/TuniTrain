@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:tuni_train/models/station.dart';
-import 'package:tuni_train/models/traintime.dart';
-import '../models/train_journey.dart';
-import '../models/train_line.dart';
-import '../models/train.dart';
+import 'package:tuni_train/models/trains/station.dart';
+import 'package:tuni_train/models/trains/traintime.dart';
+import '../models/trains/train_journey.dart';
+import '../models/trains/train_line.dart';
+import '../models/trains/train.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;

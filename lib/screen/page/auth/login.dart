@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tuni_train/controller/login_controller.dart';
+import 'package:tuni_train/controller/auth/login_controller.dart';
 import 'package:tuni_train/screen/page/auth/forgot_password_screen.dart';
 import 'package:tuni_train/screen/page/auth/signup.dart';
 
@@ -117,10 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(
-                      'assets/icon.png',
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.asset('assets/icon.png', fit: BoxFit.cover),
                   ),
                 ),
               ),
