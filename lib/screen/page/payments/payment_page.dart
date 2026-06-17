@@ -1,15 +1,22 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tuni_train/const/colors.dart';
 import 'package:tuni_train/controller/purchase/panel_controller.dart';
+import 'package:tuni_train/controller/purchase/subscription_controller.dart';
+import 'package:tuni_train/controller/purchase/ticket_controller.dart';
+import 'package:tuni_train/screen/page/purchase/subscription_success_page.dart'; // ← fix path if different
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  PaymentPage
 // ─────────────────────────────────────────────────────────────────────────────
+enum PaymentType { ticket, subscription }
+
 class PaymentPage extends StatefulWidget {
-  const PaymentPage({super.key});
+  final PaymentType type;
+  const PaymentPage({super.key, this.type = PaymentType.ticket});
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();
@@ -17,7 +24,25 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage>
     with TickerProviderStateMixin {
-  final PanelController panelCtrl = Get.find<PanelController>();
+  PanelController? get panelCtrl {
+    if (Get.isRegistered<PanelController>()) {
+      return Get.find<PanelController>();
+    }
+    return null;
+  }
+
+  SubscriptionController get subCtrl => Get.find<SubscriptionController>();
+
+  bool get _isSub => widget.type == PaymentType.subscription;
+
+  double get _amount {
+    if (_isSub) return subCtrl.currentPrice;
+
+    final ctrl = panelCtrl;
+    if (ctrl == null) return 0;
+
+    return ctrl.totalPrice.value;
+  }
 
   // ── Timer (5 min = 300 s) ──────────────────────────────────────────────
   static const int _totalSeconds = 300;
@@ -25,13 +50,8 @@ class _PaymentPageState extends State<PaymentPage>
   Timer? _timer;
   late AnimationController _pulseCtrl;
 
-  // ── Payment method ────────────────────────────────────────────────────
   String _selectedMethod = ''; // 'wallet' | 'google' | 'apple' | 'card' | 'd17'
-
-  // ── Terms accepted ────────────────────────────────────────────────────
   bool _termsAccepted = false;
-
-  // ── Loading state ─────────────────────────────────────────────────────
   bool _paying = false;
 
   @override
@@ -87,7 +107,6 @@ class _PaymentPageState extends State<PaymentPage>
     return AppColors.red;
   }
 
-  // ── Payment methods config ─────────────────────────────────────────────
   List<_PayMethod> get _methods => [
     _PayMethod(
       id: 'wallet',
@@ -133,12 +152,10 @@ class _PaymentPageState extends State<PaymentPage>
 
   bool get _canPay => _selectedMethod.isNotEmpty && _termsAccepted && !_paying;
 
-  // ─────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgPage,
-      // ── AppBar with live timer ───────────────────────────────────────────
       appBar: AppBar(
         backgroundColor: AppColors.blue1,
         elevation: 0,
@@ -160,12 +177,11 @@ class _PaymentPageState extends State<PaymentPage>
           ),
         ),
         actions: [
-          // ── Timer chip ──────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: AnimatedBuilder(
               animation: _pulseCtrl,
-              builder: (_, _) {
+              builder: (_, __) {
                 final pulse = _remainingSeconds <= 60;
                 return Container(
                   padding: const EdgeInsets.symmetric(
@@ -210,15 +226,10 @@ class _PaymentPageState extends State<PaymentPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Timer progress bar ─────────────────────────────────────────
             _buildTimerBar(),
             const SizedBox(height: 24),
-
-            // ── Order summary card ─────────────────────────────────────────
             _buildOrderSummary(),
             const SizedBox(height: 28),
-
-            // ── Payment methods ────────────────────────────────────────────
             _sectionLabel(
               icon: Icons.payment_rounded,
               label: 'Mode de paiement',
@@ -226,21 +237,15 @@ class _PaymentPageState extends State<PaymentPage>
             const SizedBox(height: 12),
             ..._methods.map((m) => _buildMethodTile(m)),
             const SizedBox(height: 28),
-
-            // ── Terms & Conditions ─────────────────────────────────────────
             _buildTerms(),
           ],
         ),
       ),
-
-      // ── Bottom pay button ────────────────────────────────────────────────
       bottomNavigationBar: _buildBottomBar(),
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  //  TIMER PROGRESS BAR
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── TIMER BAR ──────────────────────────────────────────────────────
   Widget _buildTimerBar() {
     final progress = _remainingSeconds / _totalSeconds;
     return Column(
@@ -282,17 +287,112 @@ class _PaymentPageState extends State<PaymentPage>
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  //  ORDER SUMMARY
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── ORDER SUMMARY ──────────────────────────────────────────────────
   Widget _buildOrderSummary() {
-    final allerJourney = panelCtrl.journeyAller.value;
-    final retourJourney = panelCtrl.journeyRetour.value;
-    final total = panelCtrl.totalPrice.value;
-    final classLabel = panelCtrl.selectedClass.value == '1st'
+    if (_isSub) {
+      final total = subCtrl.currentPrice;
+
+      return Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFDDE6F5)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.blue1.withValues(alpha: 0.05),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.card_membership_rounded,
+                  color: AppColors.blue3,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Récapitulatif abonnement',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.blue1,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Divider(color: Colors.grey.shade100, height: 1),
+            const SizedBox(height: 12),
+            _detailRow(Icons.confirmation_num_rounded, 'Abonnement SNCFT'),
+            const SizedBox(height: 4),
+            _detailRow(Icons.verified_rounded, 'QR code dynamique'),
+            const SizedBox(height: 4),
+            _detailRow(Icons.security_rounded, 'Paiement sécurisé'),
+            const SizedBox(height: 12),
+            Divider(color: Colors.grey.shade100, height: 1),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'TOTAL',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.blue1,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  '${total.toStringAsFixed(3)} DT',
+                  style: GoogleFonts.poppins(
+                    color: AppColors.green,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    final ctrl = panelCtrl;
+
+    if (ctrl == null) {
+      return Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFDDE6F5)),
+        ),
+        child: Text(
+          'Aucune commande trouvée.',
+          style: GoogleFonts.poppins(
+            color: AppColors.blue1,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    final allerJourney = ctrl.journeyAller.value;
+    final retourJourney = ctrl.journeyRetour.value;
+    final total = ctrl.totalPrice.value;
+    final classLabel = ctrl.selectedClass.value == '1st'
         ? '1ère classe'
         : '2ème classe';
-    final pax = panelCtrl.totalPassengers;
+    final pax = ctrl.totalPassengers;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -332,18 +432,14 @@ class _PaymentPageState extends State<PaymentPage>
           const SizedBox(height: 14),
           Divider(color: Colors.grey.shade100, height: 1),
           const SizedBox(height: 12),
-
-          // Aller row
           if (allerJourney != null)
             _summaryRow(
               '🚆 Aller',
               '${allerJourney.fromStation} → ${allerJourney.toStation}',
               sub:
                   '${allerJourney.departureTime} · ${allerJourney.arrivalTime}',
-              priceLabel: panelCtrl.allerPriceLabel,
+              priceLabel: ctrl.allerPriceLabel,
             ),
-
-          // Retour row
           if (retourJourney != null) ...[
             const SizedBox(height: 8),
             _summaryRow(
@@ -351,26 +447,20 @@ class _PaymentPageState extends State<PaymentPage>
               '${retourJourney.fromStation} → ${retourJourney.toStation}',
               sub:
                   '${retourJourney.departureTime} · ${retourJourney.arrivalTime}',
-              priceLabel: panelCtrl.retourPriceLabel,
+              priceLabel: ctrl.retourPriceLabel,
             ),
           ],
-
           const SizedBox(height: 12),
           Divider(color: Colors.grey.shade100, height: 1),
           const SizedBox(height: 10),
-
-          // Details row
           _detailRow(Icons.airline_seat_recline_extra_rounded, classLabel),
           const SizedBox(height: 4),
           _detailRow(Icons.people_alt_rounded, '$pax passager(s)'),
           const SizedBox(height: 4),
-          _detailRow(Icons.local_offer_rounded, panelCtrl.selectedOffer.value),
-
+          _detailRow(Icons.local_offer_rounded, ctrl.selectedOffer.value),
           const SizedBox(height: 12),
           Divider(color: Colors.grey.shade100, height: 1),
           const SizedBox(height: 12),
-
-          // Total
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -463,9 +553,7 @@ class _PaymentPageState extends State<PaymentPage>
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  //  PAYMENT METHOD TILE
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── METHOD TILE ────────────────────────────────────────────────────
   Widget _buildMethodTile(_PayMethod m) {
     final selected = _selectedMethod == m.id;
     return GestureDetector(
@@ -493,7 +581,6 @@ class _PaymentPageState extends State<PaymentPage>
         ),
         child: Row(
           children: [
-            // Icon bubble
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 44,
@@ -533,7 +620,6 @@ class _PaymentPageState extends State<PaymentPage>
                 ],
               ),
             ),
-            // Radio dot
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 22,
@@ -560,9 +646,7 @@ class _PaymentPageState extends State<PaymentPage>
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  //  TERMS & CONDITIONS
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── TERMS ──────────────────────────────────────────────────────────
   Widget _buildTerms() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -579,7 +663,6 @@ class _PaymentPageState extends State<PaymentPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Title row
           Row(
             children: [
               const Icon(Icons.gavel_rounded, color: AppColors.blue3, size: 15),
@@ -596,26 +679,6 @@ class _PaymentPageState extends State<PaymentPage>
           ),
           const SizedBox(height: 12),
 
-          // Terms text (scroll if long)
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.bgPage,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              _termsText,
-              style: GoogleFonts.poppins(
-                color: AppColors.blue3,
-                fontSize: 11,
-                height: 1.6,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 14),
-
-          // Accept radio row
           GestureDetector(
             onTap: () => setState(() => _termsAccepted = !_termsAccepted),
             child: Row(
@@ -679,9 +742,7 @@ class _PaymentPageState extends State<PaymentPage>
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  //  BOTTOM BAR
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── BOTTOM BAR ─────────────────────────────────────────────────────
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 30),
@@ -699,7 +760,6 @@ class _PaymentPageState extends State<PaymentPage>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Validation warning if not ready
           if (!_canPay && !_paying)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -727,10 +787,8 @@ class _PaymentPageState extends State<PaymentPage>
                 ],
               ),
             ),
-
           Row(
             children: [
-              // Price column
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -747,7 +805,7 @@ class _PaymentPageState extends State<PaymentPage>
                     const SizedBox(height: 2),
                     Obx(
                       () => Text(
-                        '${panelCtrl.totalPrice.value.toStringAsFixed(3)} DT',
+                        '${_amount.toStringAsFixed(3)} DT',
                         style: GoogleFonts.poppins(
                           color: AppColors.blue1,
                           fontSize: 22,
@@ -758,8 +816,6 @@ class _PaymentPageState extends State<PaymentPage>
                   ],
                 ),
               ),
-
-              // Pay button
               GestureDetector(
                 onTap: _canPay ? _onPayPressed : null,
                 child: AnimatedContainer(
@@ -824,10 +880,7 @@ class _PaymentPageState extends State<PaymentPage>
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
-          // Secure badge
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -852,25 +905,54 @@ class _PaymentPageState extends State<PaymentPage>
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  ON PAY
+  //  ON PAY — saves real ticket + payment to Firestore (no fake delay)
   // ══════════════════════════════════════════════════════════════════════════
   Future<void> _onPayPressed() async {
     setState(() => _paying = true);
     _timer?.cancel();
-    await Future.delayed(const Duration(seconds: 2));
+
+    try {
+      if (_isSub) {
+        // subscription → save abonnement (also starts QR rotation in ctrl)
+        await Get.find<SubscriptionController>().purchase();
+      } else {
+        // ticket → save ticket + payment
+        final ticketCtrl = Get.find<TicketController>();
+        ticketCtrl.paymentMethod = _selectedMethod;
+        await ticketCtrl.saveTicket();
+        await ticketCtrl.savePayment();
+      }
+    } catch (e) {
+      debugPrint('🚨 Payment flow error: $e');
+      if (!mounted) return;
+      setState(() => _paying = false);
+      _startTimer();
+      Get.snackbar(
+        'Erreur',
+        'Le paiement a échoué. Veuillez réessayer.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.red,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(12),
+        borderRadius: 14,
+      );
+      return;
+    }
+
     if (!mounted) return;
     setState(() => _paying = false);
 
-    // 🔥 Pass payment method so TicketController can save it
-    Get.offAllNamed(
-      '/payment_success',
-      arguments: {'paymentMethod': _selectedMethod},
-    );
+    if (_isSub) {
+      Get.off(() => const SubscriptionSuccessPage());
+    } else {
+      Get.offAllNamed(
+        '/payment_success',
+        arguments: {'paymentMethod': _selectedMethod},
+      );
+    }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  //  HELPERS
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── HELPERS ────────────────────────────────────────────────────────
   Widget _sectionLabel({required IconData icon, required String label}) {
     return Row(
       children: [
@@ -896,30 +978,13 @@ class _PaymentPageState extends State<PaymentPage>
     );
   }
 
-  // ─────────────────────────────
-  // TERMS TEXT  (ri9 haka mta3 wafa9et wkol)
-  // ─────────────────────────────
   static const String _termsText = '''
-1. Les billets achetés sont valables uniquement pour la date et le train sélectionnés.
 
-2. Tout billet non utilisé peut faire l'objet d'un remboursement jusqu'à 30 minutes avant le départ, avec retenue de 10% de frais administratifs.
-
-3. En cas d'annulation ou de retard du train imputable à la SNCFT, le voyageur a droit à un remboursement intégral ou à un échange sans frais.
-
-4. Les billets ne sont pas cessibles. L'identité du voyageur peut être vérifiée à bord.
-
-5. Le voyageur est responsable d'être présent à quai au moins 5 minutes avant le départ.
-
-6. Les enfants de moins de 2 ans voyagent gratuitement sans droit à un siège séparé.
-
-7. Toute fraude ou utilisation abusive est passible de poursuites conformément à la loi tunisienne.
-
-8. En procédant au paiement, vous confirmez avoir pris connaissance et accepté l'ensemble des présentes conditions générales de vente de la SNCFT.
   ''';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Data class for payment methods
+//  Data class for payment methods (UI only)
 // ─────────────────────────────────────────────────────────────────────────────
 class _PayMethod {
   final String id;

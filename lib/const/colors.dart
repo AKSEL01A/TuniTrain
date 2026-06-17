@@ -19,4 +19,5 @@ class AppColors {
   static const redBg = Color(0xFFFFEBEA);
   static const greenBg = Color(0xFFE1F5EE);
   static const sandBg = Color(0xFFFAEEDA);
+  static const nero= Color.fromARGB(255, 0, 0, 0); 
 }

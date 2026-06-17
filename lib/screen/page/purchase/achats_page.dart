@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,8 +32,16 @@ class AchatsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── Stats row ──────────────────────────────────────────
-                    _buildStatsRow(c),
-                    const SizedBox(height: 28),
+
+                    // ── Auto-sliding images ────────────────────────────────
+                    const _AutoImageSlider(
+                      images: [
+                        'assets/images/zitouna.jpg',
+                        'assets/images/sidibousaid.jpg',
+                        'assets/images/eljem.jpg',
+                      ],
+                    ),
+                    const SizedBox(height: 24),
 
                     // ── 3 main action buttons ──────────────────────────────
                     _buildSectionLabel('Que voulez-vous faire ?'),
@@ -78,7 +88,6 @@ class AchatsPage extends StatelessWidget {
                     const SizedBox(height: 32),
 
                     // ── Recent purchases ───────────────────────────────────
-                    _buildRecentSection(c),
                   ],
                 ),
               ),
@@ -364,7 +373,6 @@ class AchatsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildSectionLabel('Achats récents'),
               GestureDetector(
                 onTap: () => Get.toNamed('/my-journeys'),
                 child: Container(
@@ -375,14 +383,6 @@ class AchatsPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.bluePale,
                     borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Voir tout',
-                    style: GoogleFonts.poppins(
-                      color: AppColors.blue1,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
                   ),
                 ),
               ),
@@ -605,43 +605,6 @@ class AchatsPage extends StatelessWidget {
         color: AppColors.redBg,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.error_outline_rounded,
-            color: AppColors.red,
-            size: 36,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Impossible de charger vos achats',
-            style: GoogleFonts.poppins(
-              color: AppColors.red,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: c.reload,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.red,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                'Réessayer',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -653,6 +616,112 @@ class AchatsPage extends StatelessWidget {
         fontSize: 15,
         fontWeight: FontWeight.w700,
       ),
+    );
+  }
+}
+
+// ─── AUTO-SLIDING IMAGE CAROUSEL ─────────────────────────────────────────────
+class _AutoImageSlider extends StatefulWidget {
+  final List<String> images;
+  final Duration interval;
+  final double height;
+
+  const _AutoImageSlider({
+    required this.images,
+    this.interval = const Duration(seconds: 3),
+    this.height = 160,
+  });
+
+  @override
+  State<_AutoImageSlider> createState() => _AutoImageSliderState();
+}
+
+class _AutoImageSliderState extends State<_AutoImageSlider> {
+  late final PageController _pageController;
+  Timer? _timer;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startAutoSlide();
+  }
+
+  void _startAutoSlide() {
+    _timer = Timer.periodic(widget.interval, (_) {
+      if (!_pageController.hasClients || widget.images.isEmpty) return;
+      _currentPage = (_currentPage + 1) % widget.images.length;
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.images.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: SizedBox(
+            height: widget.height,
+            width: double.infinity,
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: widget.images.length,
+              onPageChanged: (index) => setState(() => _currentPage = index),
+              itemBuilder: (context, index) {
+                return Image.asset(
+                  widget.images[index],
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: AppColors.bluePale,
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.image_not_supported_rounded,
+                        color: AppColors.blue3,
+                        size: 32,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(widget.images.length, (index) {
+            final isActive = index == _currentPage;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: isActive ? 18 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: isActive ? AppColors.blue1 : AppColors.bluePale,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 }

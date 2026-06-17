@@ -23,7 +23,7 @@ class TrainStatusPage extends StatelessWidget {
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
               child: Obx(() {
-                if (!c.hasSearched.value) return _buildInitialState();
+                if (!c.hasSearched.value) return _buildInitialState(c);
                 if (c.isSearching.value) return _buildLoading();
                 if (c.notFound.value) return _buildNotFound(c);
                 final train = c.foundTrain.value;
@@ -54,6 +54,7 @@ class TrainStatusPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ── Back + Title ──────────────────────────────────────────────
               Row(
                 children: [
                   GestureDetector(
@@ -95,120 +96,241 @@ class TrainStatusPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Search bar
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 14),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.bluePale,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        'N',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.blue1,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: c.searchCtrl,
-                        keyboardType: TextInputType.text,
-                        textCapitalization: TextCapitalization.characters,
-                        onSubmitted: (_) => c.searchTrain(),
-                        style: GoogleFonts.poppins(
-                          color: AppColors.blue1,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: '505, N101, 202…',
-                          hintStyle: GoogleFonts.poppins(
-                            color: AppColors.blue3,
-                            fontSize: 13,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Obx(
-                      () => c.hasSearched.value
-                          ? GestureDetector(
-                              onTap: c.clearSearch,
-                              child: const Padding(
-                                padding: EdgeInsets.only(right: 8),
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  color: AppColors.blue3,
-                                  size: 18,
-                                ),
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                    Obx(
-                      () => GestureDetector(
-                        onTap: c.isSearching.value ? null : c.searchTrain,
-                        child: Container(
-                          margin: const EdgeInsets.all(6),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2E6DB4), Color(0xFF1B4F8A)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: c.isSearching.value
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  'Chercher',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ],
+              // ── Line Selector ─────────────────────────────────────────────
+              Text(
+                'Sélectionne une ligne',
+                style: GoogleFonts.poppins(
+                  color: Colors.white70,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+              const SizedBox(height: 8),
+             Obx(() {
+                if (c.lines.isEmpty) {
+                  return SizedBox(
+                    height: 38,
+                    child: Center(
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                // نبني القائمة مرة وحدة فقط لما lines تتغير
+                final lines = c.lines;
+                return SizedBox(
+                  height: 38,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: lines.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (_, i) {
+                      final line = lines[i];
+
+                      Color lineColor;
+                      try {
+                        lineColor = Color(
+                          int.parse(
+                            'FF${line.color.replaceAll('#', '')}',
+                            radix: 16,
+                          ),
+                        );
+                      } catch (_) {
+                        lineColor = const Color(0xFF1B4F8A);
+                      }
+
+                      // ✅ Obx منفصل لكل chip — فقط هو يتبني لما يتغير selectedLineId
+                      return Obx(() {
+                        final isSelected = c.selectedLineId.value == line.id;
+                        return GestureDetector(
+                          onTap: () => c.selectLine(line.id),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? lineColor
+                                  : Colors.white.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isSelected
+                                    ? lineColor
+                                    : Colors.white.withValues(alpha: 0.3),
+                                width: isSelected ? 0 : 1,
+                              ),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: lineColor.withValues(alpha: 0.4),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            child: Text(
+                              line.code,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                    },
+                  ),
+                );
+              }), const SizedBox(height: 16),
+
+              // ── Search Bar ────────────────────────────────────────────────
+              Obx(() {
+                final lineSelected = c.selectedLineId.value != null;
+                return AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: lineSelected ? 1.0 : 0.5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 14),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.bluePale,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'N',
+                            style: GoogleFonts.poppins(
+                              color: AppColors.blue1,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: c.searchCtrl,
+                            enabled: lineSelected,
+                            keyboardType: TextInputType.text,
+                            textCapitalization: TextCapitalization.characters,
+                            onSubmitted: (_) => c.searchTrain(),
+                            style: GoogleFonts.poppins(
+                              color: AppColors.blue1,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: lineSelected
+                                  ? '505, N101, 202…'
+                                  : 'Choisis une ligne d\'abord…',
+                              hintStyle: GoogleFonts.poppins(
+                                color: AppColors.blue3,
+                                fontSize: 13,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Obx(
+                          () => c.hasSearched.value
+                              ? GestureDetector(
+                                  onTap: c.clearSearch,
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(right: 8),
+                                    child: Icon(
+                                      Icons.close_rounded,
+                                      color: AppColors.blue3,
+                                      size: 18,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                        Obx(
+                          () => GestureDetector(
+                            onTap:
+                                (c.isSearching.value ||
+                                    c.selectedLineId.value == null)
+                                ? null
+                                : c.searchTrain,
+                            child: Container(
+                              margin: const EdgeInsets.all(6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: c.selectedLineId.value == null
+                                      ? [
+                                          const Color(0xFFBBCADC),
+                                          const Color(0xFFBBCADC),
+                                        ]
+                                      : const [
+                                          Color(0xFF2E6DB4),
+                                          Color(0xFF1B4F8A),
+                                        ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: c.isSearching.value
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Chercher',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
               const SizedBox(height: 10),
               Text(
                 'Ex: N505 · N101 · 202 (avec ou sans N)',
@@ -222,7 +344,7 @@ class TrainStatusPage extends StatelessWidget {
   }
 
   // ─── INITIAL ──────────────────────────────────────────────────────────────
-  Widget _buildInitialState() {
+  Widget _buildInitialState(TrainStatusController c) {
     return Column(
       children: [
         const SizedBox(height: 40),
@@ -240,24 +362,32 @@ class TrainStatusPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Text(
-          'Suivre un train',
-          style: GoogleFonts.poppins(
-            color: AppColors.blue1,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        Obx(() {
+          final lineSelected = c.selectedLineId.value != null;
+          return Text(
+            lineSelected ? 'Entre le numéro du train' : 'Choisis une ligne',
+            style: GoogleFonts.poppins(
+              color: AppColors.blue1,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          );
+        }),
         const SizedBox(height: 8),
-        Text(
-          'Entrez le numéro du train (ex: N505)\npour voir tous les arrêts et leur statut.',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(
-            color: AppColors.blue3,
-            fontSize: 13,
-            height: 1.5,
-          ),
-        ),
+        Obx(() {
+          final lineSelected = c.selectedLineId.value != null;
+          return Text(
+            lineSelected
+                ? 'Entrez le numéro du train (ex: N505)\npour voir tous les arrêts et leur statut.'
+                : 'Sélectionne une ligne en haut\npuis entre le numéro du train.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: AppColors.blue3,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          );
+        }),
         const SizedBox(height: 36),
         ...[
           [
@@ -405,19 +535,12 @@ class TrainStatusPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Train info card ────────────────────────────────────────────────
         _buildTrainInfoCard(c, train),
         const SizedBox(height: 16),
-
-        // ── Progress bar ───────────────────────────────────────────────────
         _buildProgressCard(c, train),
         const SizedBox(height: 20),
-
-        // ── Full stop timeline ─────────────────────────────────────────────
         _buildStopTimeline(c),
-
         const SizedBox(height: 16),
-        // Live indicator
         Obx(
           () => Center(
             child: Row(
@@ -487,7 +610,6 @@ class TrainStatusPage extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Row 1: number + line + status
             Row(
               children: [
                 Container(
@@ -514,7 +636,6 @@ class TrainStatusPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Line name
                       if (c.foundLine.value != null)
                         Row(
                           children: [
@@ -562,7 +683,6 @@ class TrainStatusPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Status badge
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -595,7 +715,6 @@ class TrainStatusPage extends StatelessWidget {
             Divider(color: Colors.white.withValues(alpha: 0.2)),
             const SizedBox(height: 12),
 
-            // Row 2: current position
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -606,7 +725,6 @@ class TrainStatusPage extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Animated dot
                   Container(
                     width: 10,
                     height: 10,
@@ -651,7 +769,6 @@ class TrainStatusPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Speed
                   if (train.isActive && train.currentSpeed > 0)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -677,7 +794,6 @@ class TrainStatusPage extends StatelessWidget {
               ),
             ),
 
-            // Delay banner
             if (train.isDelayed) ...[
               const SizedBox(height: 10),
               Container(
@@ -738,7 +854,6 @@ class TrainStatusPage extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Departure
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -788,7 +903,6 @@ class TrainStatusPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Arrival
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -852,7 +966,6 @@ class TrainStatusPage extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Header
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
               child: Row(
@@ -886,7 +999,6 @@ class TrainStatusPage extends StatelessWidget {
               ),
             ),
 
-            // Legend
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
               child: Row(
@@ -914,7 +1026,6 @@ class TrainStatusPage extends StatelessWidget {
 
             const Divider(height: 1),
 
-            // Stop list
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
               child: Column(
@@ -942,7 +1053,6 @@ class TrainStatusPage extends StatelessWidget {
     final stop = info.trainTime;
     final state = info.state;
 
-    // Colors by state
     Color dotColor;
     Color textColor;
     Color timeColor;
@@ -989,7 +1099,6 @@ class TrainStatusPage extends StatelessWidget {
         break;
     }
 
-    // First and last special labels
     final isFirst = index == 0;
     final isLastStop = index == total - 1;
 
@@ -997,13 +1106,11 @@ class TrainStatusPage extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Timeline column ──────────────────────────────────────────────
           SizedBox(
             width: 32,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Top line
                 if (!isFirst)
                   Expanded(
                     child: Center(
@@ -1017,8 +1124,6 @@ class TrainStatusPage extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                // Dot
                 Container(
                   width: dotSize,
                   height: dotSize,
@@ -1057,8 +1162,6 @@ class TrainStatusPage extends StatelessWidget {
                         )
                       : null,
                 ),
-
-                // Bottom line
                 if (!isLast)
                   Expanded(
                     child: Center(
@@ -1076,7 +1179,6 @@ class TrainStatusPage extends StatelessWidget {
 
           const SizedBox(width: 14),
 
-          // ── Content column ───────────────────────────────────────────────
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(
@@ -1107,7 +1209,6 @@ class TrainStatusPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Station name
                           Row(
                             children: [
                               Expanded(
@@ -1126,7 +1227,6 @@ class TrainStatusPage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              // First / Last labels
                               if (isFirst)
                                 _stopBadge(
                                   'DÉPART',
@@ -1141,13 +1241,9 @@ class TrainStatusPage extends StatelessWidget {
                                 ),
                             ],
                           ),
-
                           const SizedBox(height: 6),
-
-                          // Times row
                           Row(
                             children: [
-                              // Arrival time
                               if (stop.arrivalTime != null) ...[
                                 Icon(
                                   Icons.arrow_downward_rounded,
@@ -1165,7 +1261,6 @@ class TrainStatusPage extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 10),
                               ],
-                              // Departure time
                               if (stop.departureTime != null) ...[
                                 Icon(
                                   Icons.arrow_upward_rounded,
@@ -1204,10 +1299,7 @@ class TrainStatusPage extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     const SizedBox(width: 8),
-
-                    // State badge
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,

@@ -1,50 +1,58 @@
 import 'package:flutter/material.dart';
 
-// ─── Enums ───────────────────────────────────────────────────────────────────
-
 enum FuelType { electric, petrol, diesel, hybrid }
 
 enum TransmissionType { automatic, manual }
 
-enum CarCategory { economy, luxury, sedan, suv, van }
+enum CarCategory {
+  economy,
+  comfort,
+  sedan,
+  suv,
+  luxury,
+  minibus,
+  electric,
+  van,
+}
 
 extension FuelTypeX on FuelType {
   String get label => switch (this) {
     FuelType.electric => 'Électrique',
-    FuelType.petrol   => 'Essence',
-    FuelType.diesel   => 'Diesel',
-    FuelType.hybrid   => 'Hybride',
+    FuelType.petrol => 'Essence',
+    FuelType.diesel => 'Diesel',
+    FuelType.hybrid => 'Hybride',
   };
 
   IconData get icon => switch (this) {
     FuelType.electric => Icons.electric_bolt_rounded,
-    FuelType.petrol   => Icons.local_gas_station_rounded,
-    FuelType.diesel   => Icons.local_gas_station_rounded,
-    FuelType.hybrid   => Icons.eco_rounded,
+    FuelType.petrol => Icons.local_gas_station_rounded,
+    FuelType.diesel => Icons.local_gas_station_rounded,
+    FuelType.hybrid => Icons.eco_rounded,
   };
 }
 
 extension TransmissionTypeX on TransmissionType {
   String get label => switch (this) {
     TransmissionType.automatic => 'Automatique',
-    TransmissionType.manual    => 'Manuelle',
+    TransmissionType.manual => 'Manuelle',
   };
 }
 
 extension CarCategoryX on CarCategory {
   String get label => switch (this) {
     CarCategory.economy => 'Économique',
-    CarCategory.luxury  => 'Luxe',
-    CarCategory.sedan   => 'Berline',
-    CarCategory.suv     => 'SUV',
-    CarCategory.van     => 'Van',
+    CarCategory.comfort => 'Confort',
+    CarCategory.sedan => 'Berline',
+    CarCategory.suv => 'SUV',
+    CarCategory.luxury => 'Luxe',
+    CarCategory.minibus => 'Minibus',
+    CarCategory.electric => 'Électrique',
+    CarCategory.van => 'Van',
   };
 }
 
-// ─── Model ───────────────────────────────────────────────────────────────────
-
 class CarRental {
-  final int id;
+  final String id;
   final String companyName;
   final String brand;
   final String model;
@@ -65,6 +73,9 @@ class CarRental {
   final List<String> imageUrls;
   final List<String> amenities;
   final List<DateTime> unavailableDates;
+  final String? description;
+  final String? phone;
+  final String? whatsapp;
   bool isFavorite;
 
   CarRental({
@@ -89,13 +100,16 @@ class CarRental {
     this.imageUrls = const [],
     this.amenities = const [],
     this.unavailableDates = const [],
+    this.description,
+    this.phone,
+    this.whatsapp,
     this.isFavorite = false,
   });
 
   String get displayName => '$brand $model ($year)';
 
   CarRental copyWith({
-    int? id,
+    String? id,
     String? companyName,
     String? brand,
     String? model,
@@ -116,6 +130,9 @@ class CarRental {
     List<String>? imageUrls,
     List<String>? amenities,
     List<DateTime>? unavailableDates,
+    String? description,
+    String? phone,
+    String? whatsapp,
     bool? isFavorite,
   }) {
     return CarRental(
@@ -140,13 +157,16 @@ class CarRental {
       imageUrls: imageUrls ?? this.imageUrls,
       amenities: amenities ?? this.amenities,
       unavailableDates: unavailableDates ?? this.unavailableDates,
+      description: description ?? this.description,
+      phone: phone ?? this.phone,
+      whatsapp: whatsapp ?? this.whatsapp,
       isFavorite: isFavorite ?? this.isFavorite,
     );
   }
 
   factory CarRental.fromJson(Map<String, dynamic> json) {
     return CarRental(
-      id: json['id'] as int,
+      id: json['id'] as String,
       companyName: json['companyName'] as String,
       brand: json['brand'] as String,
       model: json['model'] as String,
@@ -155,7 +175,9 @@ class CarRental {
       latitude: (json['latitude'] as num?)?.toDouble() ?? 36.8189,
       longitude: (json['longitude'] as num?)?.toDouble() ?? 10.1658,
       fuelType: FuelType.values.byName(json['fuelType'] as String),
-      transmission: TransmissionType.values.byName(json['transmission'] as String),
+      transmission: TransmissionType.values.byName(
+        json['transmission'] as String,
+      ),
       category: CarCategory.values.byName(json['category'] as String),
       pricePerDay: (json['pricePerDay'] as num).toDouble(),
       available: json['available'] as bool? ?? true,
@@ -164,14 +186,25 @@ class CarRental {
       seats: json['seats'] as int? ?? 5,
       luggageCapacity: json['luggageCapacity'] as int? ?? 2,
       featured: json['featured'] as bool? ?? false,
-      imageUrls: (json['imageUrls'] as List<dynamic>?)
+      imageUrls:
+          (json['imageUrls'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      amenities: (json['amenities'] as List<dynamic>?)
+      amenities:
+          (json['amenities'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      unavailableDates:
+          (json['unavailableDates'] as List<dynamic>?)
+              ?.map((e) => DateTime.parse(e as String))
+              .toList() ??
+          const [],
+      description: json['description'] as String?,
+      phone: json['phone'] as String?,
+      whatsapp: json['whatsapp'] as String?,
+      isFavorite: json['isFavorite'] as bool? ?? false,
     );
   }
 
@@ -196,6 +229,12 @@ class CarRental {
     'featured': featured,
     'imageUrls': imageUrls,
     'amenities': amenities,
+    'unavailableDates': unavailableDates
+        .map((e) => e.toIso8601String())
+        .toList(),
+    'description': description,
+    'phone': phone,
+    'whatsapp': whatsapp,
     'isFavorite': isFavorite,
   };
 }

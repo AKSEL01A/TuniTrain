@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:tuni_train/const/colors.dart';
 import 'package:tuni_train/controller/purchase/subscription_controller.dart';
+import 'package:tuni_train/screen/page/payments/payment_page.dart';
 
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});
@@ -37,30 +38,6 @@ class _SubscriptionPageState extends State<SubscriptionPage>
   ];
   static const _stepLabels = ['Plan', 'Ligne', 'Trajet', 'Profil', 'Confirm'];
 
-  @override
-  void initState() {
-    super.initState();
-    _qrAnim =
-        AnimationController(vsync: this, duration: const Duration(seconds: 30))
-          ..addListener(() {
-            final s = (30 - (_qrAnim.value * 30)).ceil();
-            if (s != _secondsLeft && mounted) setState(() => _secondsLeft = s);
-          })
-          ..addStatusListener((status) {
-            if (status == AnimationStatus.completed) {
-              _qrAnim.forward(from: 0);
-              setState(() => _secondsLeft = 30);
-            }
-          })
-          ..forward();
-  }
-
-  @override
-  void dispose() {
-    _qrAnim.dispose();
-    super.dispose();
-  }
-
   // ─── ROOT ────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
@@ -72,7 +49,6 @@ class _SubscriptionPageState extends State<SubscriptionPage>
             child: CircularProgressIndicator(color: AppColors.blue1),
           );
         }
-        if (ctrl.purchaseSuccess.value) return _buildSuccess(context);
         return _buildStepFlow(context);
       }),
     );
@@ -1514,7 +1490,11 @@ class _SubscriptionPageState extends State<SubscriptionPage>
               ),
             Expanded(
               child: GestureDetector(
-                onTap: isLast ? ctrl.purchase : ctrl.nextStep,
+                onTap: isLast
+                    ? () => Get.to(
+                        () => const PaymentPage(type: PaymentType.subscription),
+                      )
+                    : ctrl.nextStep,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   height: 52,

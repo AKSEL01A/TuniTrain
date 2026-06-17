@@ -21,7 +21,7 @@ extension PlaceCategoryX on PlaceCategory {
 // ─── Model ───────────────────────────────────────────────────────────────────
 
 class Place {
-  final int id;
+  final String id;
   final String name;
   final String location;
   final double latitude;
@@ -72,7 +72,7 @@ class Place {
   }) : createdAt = createdAt ?? DateTime.now();
 
   Place copyWith({
-    int? id,
+    String? id,
     String? name,
     String? location,
     double? latitude,
@@ -125,7 +125,7 @@ class Place {
 
   factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
-      id: json['id'] as int,
+      id: json['id'] as String,
       name: json['name'] as String,
       location: json['location'] as String,
       latitude: (json['latitude'] as num?)?.toDouble() ?? 36.8189,

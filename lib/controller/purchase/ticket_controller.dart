@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:tuni_train/controller/auth/auth_controller.dart';
 import 'package:tuni_train/controller/mon_journee/my_journey_controller.dart';
 import 'package:tuni_train/controller/purchase/panel_controller.dart';
+import 'package:tuni_train/models/purchase/payment.dart';
 
 import 'package:tuni_train/models/purchase/tickets.dart';
 
@@ -257,6 +258,48 @@ class TicketController extends GetxController {
     return savedTicket.value?.toQrPayload() ?? '';
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // SAVE PAYMENT → Firestore "Payments" collection
+  // ─────────────────────────────────────────────────────────────
+ Future<void> savePayment() async {
+    try {
+      final user = Get.find<AuthController>().client.value;
+      final panelCtrl = Get.find<PanelController>();
+      final ticket = savedTicket.value;
+
+      if (user == null) {
+        debugPrint('🚨 No user — cannot save payment');
+        return;
+      }
+
+      final payment = Payment(
+        userId: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phoneNumber: user.phone,
+        paymentMethod: paymentMethod,
+        amount: panelCtrl.totalPrice.value,
+        status: 'success',
+        ticketId: savedFirestoreId.value,
+        ticketCode: ticket?.ticketCode ?? '',
+        fromStation: ticket?.fromStation ?? '',
+        toStation: ticket?.toStation ?? '',
+        passengers: panelCtrl.totalPassengers,
+        ticketClass: panelCtrl.selectedClass.value,
+        isRoundTrip: ticket?.isRoundTrip ?? false,
+      );
+
+      final ref = await _db.collection('Payments').add(payment.toFirestore());
+      debugPrint(
+        '✅ Payment saved: ${ref.id} | $paymentMethod | ${payment.amount} DT',
+      );
+    } catch (e) {
+      debugPrint('🚨 SAVE PAYMENT ERROR: $e');
+    }
+  }
+
+  
   // ─────────────────────────────────────────────────────────────
   // RESET SEND — +sendError reset added
   // ─────────────────────────────────────────────────────────────
