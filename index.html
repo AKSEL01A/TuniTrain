@@ -1,46 +1,347 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="/">
-
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tes trajets en train, toujours à l'heure. Horaires, alertes et suivi en direct.">
 
-  <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="flutter_application_2">
+  <meta name="apple-mobile-web-app-title" content="TuniTrain">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>flutter_application_2</title>
+  <title>TuniTrain — Télécharger l'application</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    :root {
+      --blue1: #1565C0;
+      --blue2: #1976D2;
+      --blue3: #90A4AE;
+      --bluePale: #E8EEF7;
+      --bgPage: #F4F7FC;
+      --green: #2E7D32;
+      --greenBg: #E8F5E9;
+      --sand: #E65100;
+      --sandBg: #FFF3E0;
+      --red: #D32F2F;
+      --redBg: #FFEBEE;
+      --white05: #F9FAFC;
+      --white10: #F2F4F7;
+      --white15: #E8EBF0;
+      --white20: #DFE3E8;
+      --ink: #152234;
+      --font: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bgPage);
+      color: var(--ink);
+      font-family: var(--font);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ---------- HEADER ---------- */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--blue1), var(--blue2));
+      padding: 54px 0 70px;
+      color: #fff;
+    }
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .c1 { width: 220px; height: 220px; right: -50px; top: -40px; background: rgba(255,255,255,0.05); }
+    .c2 { width: 120px; height: 120px; right: 30px; top: 60px; background: rgba(255,255,255,0.07); }
+    .c3 { width: 160px; height: 160px; left: -40px; bottom: -50px; background: var(--blue3); opacity: 0.3; }
+
+    nav.hero-nav {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 38px;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 0.02em;
+    }
+    .logo-mark {
+      width: 30px; height: 30px;
+      border-radius: 9px;
+      background: rgba(255,255,255,0.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .hero-content h1 {
+      margin: 0 0 12px;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .hero-content p.sub {
+      margin: 0 auto 28px;
+      max-width: 420px;
+      font-size: 15.5px;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      color: var(--blue1);
+      font-weight: 700;
+      font-size: 16px;
+      padding: 15px 28px;
+      border-radius: 14px;
+      box-shadow: 0 12px 24px rgba(10,30,60,0.25);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .cta:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(10,30,60,0.3); }
+    .cta svg { width: 18px; height: 18px; }
+
+    .cta-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 12px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 13px 20px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .cta-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .chips {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+    }
+
+    /* ---------- SECTIONS ---------- */
+    .section { padding: 56px 0; }
+    .section-head { text-align: center; margin-bottom: 36px; }
+    .section-head .eyebrow {
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--blue1);
+      margin-bottom: 8px;
+    }
+    .section-head h2 { margin: 0; font-size: 24px; font-weight: 800; color: var(--ink); }
+
+    .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--white15);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 4px 18px rgba(20,40,70,0.04);
+    }
+    .card-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      background: var(--bluePale);
+      color: var(--blue1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+    .card h3 { margin: 0 0 6px; font-size: 16px; font-weight: 700; color: var(--ink); }
+    .card p { margin: 0; font-size: 14px; color: var(--blue3); }
+
+    /* ---------- INSTALL STEPS ---------- */
+    .steps { display: flex; flex-direction: column; gap: 14px; }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: #fff;
+      border: 1px solid var(--white15);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .step-num {
+      flex: none;
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: var(--sandBg);
+      color: var(--sand);
+      font-weight: 800;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step h4 { margin: 0 0 4px; font-size: 15.5px; font-weight: 700; color: var(--ink); }
+    .step p { margin: 0; font-size: 14px; color: var(--blue3); }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--greenBg);
+      color: var(--green);
+      font-size: 13.5px;
+      font-weight: 600;
+      border-radius: 12px;
+      padding: 12px 16px;
+      max-width: max-content;
+      margin: 0 auto 36px;
+    }
+    .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+    footer { border-top: 1px solid var(--white20); padding: 30px 0 50px; text-align: center; }
+    footer p { font-size: 13px; color: var(--blue3); margin: 0; }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <header class="hero">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="circle c3"></div>
+
+    <div class="wrap">
+      <nav class="hero-nav">
+        <span class="logo-mark">🚆</span> TuniTrain
+      </nav>
+
+      <div class="hero-content">
+        <h1>TuniTrain</h1>
+        <p class="sub">Tes trajets en train, toujours à l'heure. Horaires, alertes et suivi en direct, dans une seule app.</p>
+
+        <div class="cta-row">
+          <a href="#" id="downloadBtn" class="cta" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>
+            Télécharger pour Android
+          </a>
+          <a href="#" id="iosBtn" class="cta-secondary">
+             Bientôt sur iPhone
+          </a>
+        </div>
+
+        <div class="chips">
+          <span class="chip">Version 1.0.0</span>
+          <span class="chip">Android 8.0+</span>
+          <span class="chip">62 Mo</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section wrap">
+    <div class="status"><span class="dot"></span> Dernière version disponible</div>
+
+    <div class="section-head">
+      <div class="eyebrow">Fonctionnalités</div>
+      <h2>Ce que tu peux faire avec TuniTrain</h2>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🕐</div>
+        <h3>Horaires en direct</h3>
+        <p>Consulte les horaires de trains mis à jour en temps réel.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗺️</div>
+        <h3>Recherche de trajets</h3>
+        <p>Trouve et compare facilement les trajets disponibles.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔔</div>
+        <h3>Alertes retard</h3>
+        <p>Reçois une notification en cas de retard ou de changement.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⭐</div>
+        <h3>Trajets favoris</h3>
+        <p>Enregistre tes lignes habituelles pour y accéder plus vite.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="eyebrow">Installation</div>
+      <h2>Comment installer l'APK</h2>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h4>Télécharger</h4>
+          <p>Appuie sur "Télécharger pour Android" pour récupérer le fichier APK.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h4>Autoriser la source</h4>
+          <p>Android va demander d'autoriser l'installation depuis cette source : accepte dans les paramètres.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h4>Installer</h4>
+          <p>Ouvre le fichier téléchargé et appuie sur Installer. L'application est prête.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="wrap">
+    <p>TuniTrain · Fait en Tunisie</p>
+  </footer>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
